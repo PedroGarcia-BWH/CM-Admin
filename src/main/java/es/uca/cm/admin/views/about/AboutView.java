@@ -1,6 +1,6 @@
-package com.example.application.views.about;
+package es.uca.cm.admin.views.about;
 
-import com.example.application.views.MainLayout;
+import es.uca.cm.admin.views.MainLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;

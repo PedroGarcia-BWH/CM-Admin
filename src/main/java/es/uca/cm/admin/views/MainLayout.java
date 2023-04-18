@@ -1,10 +1,10 @@
-package com.example.application.views;
+package es.uca.cm.admin.views;
 
 
-import com.example.application.components.appnav.AppNav;
-import com.example.application.components.appnav.AppNavItem;
-import com.example.application.views.about.AboutView;
-import com.example.application.views.helloworld.HelloWorldView;
+import es.uca.cm.admin.components.appnav.AppNav;
+import es.uca.cm.admin.components.appnav.AppNavItem;
+import es.uca.cm.admin.views.about.AboutView;
+import es.uca.cm.admin.views.helloworld.HelloWorldView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;

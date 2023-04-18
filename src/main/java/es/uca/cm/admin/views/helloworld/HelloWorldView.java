@@ -1,6 +1,6 @@
-package com.example.application.views.helloworld;
+package es.uca.cm.admin.views.helloworld;
 
-import com.example.application.views.MainLayout;
+import es.uca.cm.admin.views.MainLayout;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.notification.Notification;
