@@ -28,4 +28,10 @@ public class WebUserService {
     public long count(){
         return userRepository.count();
     }
+
+    public WebUser changePass(WebUser user, String pass){
+        user.setPass(passwordEncoder.encode(pass));
+        userRepository.save(user);
+        return user;
+    }
 }

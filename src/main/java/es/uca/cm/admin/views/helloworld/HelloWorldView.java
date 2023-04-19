@@ -13,8 +13,8 @@ import jakarta.annotation.security.PermitAll;
 
 @PermitAll
 @PageTitle("Hello World")
-@Route(value = "hello", layout = MainLayout.class)
-@RouteAlias(value = "", layout = MainLayout.class)
+@Route(value = "hello1", layout = MainLayout.class)
+@RouteAlias(value = "hello", layout = MainLayout.class)
 public class HelloWorldView extends HorizontalLayout {
 
     private TextField name;

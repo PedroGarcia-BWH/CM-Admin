@@ -23,6 +23,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.RouterLink;
+import es.uca.cm.admin.views.home.HomeView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -57,7 +58,7 @@ public class MainLayout extends AppLayout{
             _authenticatedUser.logout();
         });
         btnUser.addClickListener(e -> {
-            UI.getCurrent().navigate("perfil");
+            UI.getCurrent().navigate("account");
         });
         H1 logo = new H1("EBZ");
         logo.addClassNames("text-l", "m-m");
@@ -134,7 +135,7 @@ public class MainLayout extends AppLayout{
     }
 
     private Component[] createMenuItems() {
-        return new Tab[] { createTab(getTranslation("mainLayout.home"), HelloWorldView.class, new Icon(VaadinIcon.HOME)),
+        return new Tab[] { createTab(getTranslation("mainLayout.home"), HomeView.class, new Icon(VaadinIcon.HOME)),
                 createTab(getTranslation("mainLayout.transfer"), HelloWorldView.class, new Icon(VaadinIcon.MONEY_EXCHANGE)),
                 createTab(getTranslation("mainLayout.cards"), HelloWorldView.class, new Icon(VaadinIcon.CREDIT_CARD)),
                 createTab(getTranslation("mainLayout.movement"), HelloWorldView.class, new Icon(VaadinIcon.MONEY)),
