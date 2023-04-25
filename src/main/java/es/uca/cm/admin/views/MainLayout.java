@@ -2,9 +2,12 @@ package es.uca.cm.admin.views;
 
 
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
 import es.uca.cm.admin.security.AuthenticatedUser;
+import es.uca.cm.admin.views.article.articleView;
 import es.uca.cm.admin.views.helloworld.HelloWorldView;
 
 import com.vaadin.flow.component.Component;
@@ -25,10 +28,13 @@ import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.RouterLink;
 import es.uca.cm.admin.views.home.HomeView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Locale;
-
 
 
 public class MainLayout extends AppLayout{
@@ -36,7 +42,7 @@ public class MainLayout extends AppLayout{
     private AuthenticatedUser _authenticatedUser;
 
 
-    public MainLayout() {
+    public MainLayout() throws FileNotFoundException {
         CreateHeader();
 
         Tabs menu = CreateMenu();
@@ -44,7 +50,7 @@ public class MainLayout extends AppLayout{
     }
 
 
-    private void CreateHeader() {
+    private void CreateHeader() throws FileNotFoundException {
         HorizontalLayout hLayout = new HorizontalLayout();
         HorizontalLayout hlContent = new HorizontalLayout();
 
@@ -60,8 +66,19 @@ public class MainLayout extends AppLayout{
         btnUser.addClickListener(e -> {
             UI.getCurrent().navigate("account");
         });
-        H1 logo = new H1("EBZ");
+        File file = ResourceUtils.getFile("classpath:logo.png");
+        StreamResource streamResource = new StreamResource("logo.png", () -> {
+            try {
+                return new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
+        Image logo = new Image(streamResource, "Conexión Morada");
         logo.addClassNames("text-l", "m-m");
+        logo.setHeight("50px");
+        logo.setWidth("50px");
         logo.addClickListener(e -> {
             logo.getUI().ifPresent((ui -> ui.navigate("")));
         });
@@ -139,7 +156,7 @@ public class MainLayout extends AppLayout{
                 createTab(getTranslation("mainLayout.transfer"), HelloWorldView.class, new Icon(VaadinIcon.MONEY_EXCHANGE)),
                 createTab(getTranslation("mainLayout.cards"), HelloWorldView.class, new Icon(VaadinIcon.CREDIT_CARD)),
                 createTab(getTranslation("mainLayout.movement"), HelloWorldView.class, new Icon(VaadinIcon.MONEY)),
-                createTab(getTranslation("mainLayout.notices"), HelloWorldView.class, new Icon(VaadinIcon.NEWSPAPER)),
+                createTab(getTranslation("article.title"), articleView.class, new Icon(VaadinIcon.NEWSPAPER)),
                 createTab(getTranslation("mainLayout.query"), HelloWorldView.class, new Icon(VaadinIcon.ENVELOPE_O))};
     }
 

@@ -48,7 +48,7 @@ public class WebUser {
     public Date getDateCreated(){ return this.dateCreated; }
     public void  setDateCreated(Date date){ this.dateCreated = date; }
     public String getPass(){ return this.pass; }
-    public void setPass (String contraseña){ this.pass = pass; }
+    public void setPass (String pass){ this.pass = pass; }
     public String getEmail(){ return this.email; }
     public void setEmail (String email){ this.email = email; }
 
