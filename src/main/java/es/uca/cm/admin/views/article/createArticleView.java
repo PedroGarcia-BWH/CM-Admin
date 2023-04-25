@@ -21,8 +21,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import es.uca.cm.admin.Application;
 import es.uca.cm.admin.views.MainLayout;
+import es.uca.cm.admin.views.article.articleService.Article;
+import es.uca.cm.admin.views.article.articleService.ArticleService;
 import jakarta.annotation.security.PermitAll;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,7 +64,11 @@ public class createArticleView extends VerticalLayout {
     private Paragraph plog = new Paragraph();
 
     private ComboBox<String> cbUsuario = new ComboBox<>(getTranslation("dashboardUser.DNI"));
-    public createArticleView() {
+
+    @Autowired
+    private ArticleService articleService;
+    public createArticleView(ArticleService articleService) {
+        this.articleService = articleService;
         this.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         this.setAlignItems(FlexComponent.Alignment.CENTER);
 
@@ -102,7 +109,7 @@ public class createArticleView extends VerticalLayout {
         Image imgImagenPortada = new Image();
 
         // Configurar opciones de subida de archivo
-        upload.setMaxFileSize(5 * 1024 * 1024); // Tamaño máximo de archivo: 5 MB
+        upload.setMaxFileSize(20 * 1024 * 1024); // Tamaño máximo de archivo: 5 MB
         upload.setAcceptedFileTypes("image/jpeg", "image/png"); // Tipos de archivo aceptados: JPEG y PNG
 
         // Configurar acción de subida de archivo
@@ -192,6 +199,7 @@ public class createArticleView extends VerticalLayout {
                 Application.FirebaseStorageService firebaseStorageService = new Application.FirebaseStorageService();
                 try {
                     String url = firebaseStorageService.uploadImage(buffer.getInputStream(), buffer.getFileData().getFileName());
+                    articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, cmbCategorias.getValue()));
                     cdlogNuevoUsuario.add(new H3("Éxito"), new Hr(), new Paragraph("Artículo creado correctamente"));
                     clearData();
                     cdlogNuevoUsuario.open();

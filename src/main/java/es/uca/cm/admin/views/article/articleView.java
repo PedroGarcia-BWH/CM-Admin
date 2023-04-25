@@ -31,6 +31,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import es.uca.cm.admin.views.MainLayout;
+import es.uca.cm.admin.views.article.articleService.ArticleService;
 import es.uca.cm.admin.webUser.WebUser;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,8 @@ public class articleView extends HorizontalLayout {
     private Button btnDelete = new Button(getTranslation("account.delete"));
 
     private VerticalLayout hlAdd = new VerticalLayout();
+
+
 
 
     public articleView() {

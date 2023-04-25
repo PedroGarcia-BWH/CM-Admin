@@ -8,7 +8,6 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
 import es.uca.cm.admin.security.AuthenticatedUser;
 import es.uca.cm.admin.views.article.articleView;
-import es.uca.cm.admin.views.helloworld.HelloWorldView;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
@@ -153,11 +152,11 @@ public class MainLayout extends AppLayout{
 
     private Component[] createMenuItems() {
         return new Tab[] { createTab(getTranslation("mainLayout.home"), HomeView.class, new Icon(VaadinIcon.HOME)),
-                createTab(getTranslation("mainLayout.transfer"), HelloWorldView.class, new Icon(VaadinIcon.MONEY_EXCHANGE)),
-                createTab(getTranslation("mainLayout.cards"), HelloWorldView.class, new Icon(VaadinIcon.CREDIT_CARD)),
-                createTab(getTranslation("mainLayout.movement"), HelloWorldView.class, new Icon(VaadinIcon.MONEY)),
+                createTab(getTranslation("mainLayout.transfer"), HomeView.class, new Icon(VaadinIcon.MONEY_EXCHANGE)),
+                createTab(getTranslation("mainLayout.cards"), HomeView.class, new Icon(VaadinIcon.CREDIT_CARD)),
+                createTab(getTranslation("mainLayout.movement"), HomeView.class, new Icon(VaadinIcon.MONEY)),
                 createTab(getTranslation("article.title"), articleView.class, new Icon(VaadinIcon.NEWSPAPER)),
-                createTab(getTranslation("mainLayout.query"), HelloWorldView.class, new Icon(VaadinIcon.ENVELOPE_O))};
+                createTab(getTranslation("mainLayout.query"), HomeView.class, new Icon(VaadinIcon.ENVELOPE_O))};
     }
 
     private static Tab createTab(String text,
