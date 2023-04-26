@@ -1,4 +1,5 @@
 package es.uca.cm.admin.views.article;
+import es.uca.cm.admin.openAi.GPT.GPTController;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -41,29 +42,32 @@ public class createArticleView extends VerticalLayout {
 
     private H1 hNuevoUsuario = new H1(getTranslation("article.create"));
     HorizontalLayout hlAccionesNuevoUsuario = new HorizontalLayout();
-    private H1 hEliminarUsuario = new H1(getTranslation("dashboardUser.modify"));
+    private H1 hEliminarUsuario = new H1(getTranslation("article.createGPT"));
     HorizontalLayout hlAccionesModificarUsuario = new HorizontalLayout();
     private FormLayout formNuevoUsuario = new FormLayout();
     private FormLayout formEliminarUsuario = new FormLayout();
     private VerticalLayout vlNuevoUsuario = new VerticalLayout();
     private VerticalLayout vlModificarUsuario = new VerticalLayout();
-
     private VerticalLayout vlDashboard = new VerticalLayout();
-
-    private TextField tfNameMod = new TextField(getTranslation("dashboardUser.name"));
-    private PasswordField tfPasswordMod = new PasswordField(getTranslation("dashboardUser.password"));
-    private DatePicker dpBirthDateMod = new DatePicker(getTranslation("dashboardUser.birth"));
-
 
     private Button btnSave = new Button(getTranslation("article.create"));
     private Button btnVaciar = new Button(getTranslation("article.clear"));
+
+    private Button btnSaveGPT = new Button(getTranslation("article.create"));
+    private Button btnGenerate = new Button(getTranslation("article.generate"));
+
     private HorizontalLayout hlAviso = new HorizontalLayout();
 
     private ConfirmDialog cdlogNuevoUsuario = new ConfirmDialog();
     private FormLayout fFormNuevoUsuario = new FormLayout();
     private Paragraph plog = new Paragraph();
 
-    private ComboBox<String> cbUsuario = new ComboBox<>(getTranslation("dashboardUser.DNI"));
+    private TextField prompt = new TextField("Introduce temática para generar artículo");
+    private TextField txtTituloGPT = new TextField("Título");
+    private TextField txtDescripcionGPT = new TextField("Descripción");
+    private TextArea txtCuerpoArticuloGPT = new TextArea("Cuerpo de Artículo");
+    private ComboBox<String> cmbCategoriasGPT = new ComboBox<>("Categoría");
+
 
     @Autowired
     private ArticleService articleService;
@@ -102,7 +106,7 @@ public class createArticleView extends VerticalLayout {
         TextField txtTitulo = new TextField("Título");
         TextField txtDescripcion = new TextField("Descripción");
         TextArea txtCuerpoArticulo = new TextArea("Cuerpo de Artículo");
-        ComboBox<String> cmbCategorias = new ComboBox<>("Categorías");
+        ComboBox<String> cmbCategorias = new ComboBox<>("Categoría");
         cmbCategorias.setItems("Violencia de género", "Igualdad", "Violencia Sexual");
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
@@ -130,9 +134,6 @@ public class createArticleView extends VerticalLayout {
         fFormNuevoUsuario.setColspan(imgImagenPortada, 2);
         vlNuevoUsuario.add(hNuevoUsuario, new Hr(), formNuevoUsuario, hlAccionesNuevoUsuario);
 
-        formEliminarUsuario.add();
-        vlModificarUsuario.add(hEliminarUsuario, new Hr(), formEliminarUsuario);
-
         hlAviso.setAlignItems(FlexComponent.Alignment.CENTER);
         hlAviso.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         hlAviso.setWidth("100%");
@@ -140,42 +141,59 @@ public class createArticleView extends VerticalLayout {
         Button btnUsuario = new Button(getTranslation("dashboardUser.addUser"));
         Button btnDelete = new Button("dashboardUser.deleteUser");
 
-        Button btnDeleteUser = new Button(getTranslation("card.delete"));
-        Button btnModificar = new Button(getTranslation("dashboardUser.modifyUser"));
-        btnDeleteUser.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button btnDeleteUser = new Button(getTranslation("article.reloadGPT"));
+        Button btnModificar = new Button(getTranslation("article.reloadDALL"));
         btnDeleteUser.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        btnModificar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        hlAccionesModificarUsuario.add(btnDeleteUser, btnModificar);
-        hlAccionesModificarUsuario.setWidthFull();
-        hlAccionesModificarUsuario.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        List<String> DNIs = new ArrayList<>();
-        /*for (Usuario usuario : usuarioService.findAll()) {
-            DNIs.add(usuario.getDNI());
-        }*/
-        cbUsuario.setItems(DNIs);
+        btnModificar.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-        FormLayout hlDatosUsuario = new FormLayout();
-        hlDatosUsuario.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1), new FormLayout.ResponsiveStep("500px", 3));
-        hlDatosUsuario.add( tfNameMod, dpBirthDateMod);
-        tfNameMod.setReadOnly(true);
-        dpBirthDateMod.setReadOnly(true);
-        tfNameMod.setVisible(false);
-        tfPasswordMod.setVisible(false);
-        dpBirthDateMod.setVisible(false);
-        vlModificarUsuario.add(cbUsuario,
-                hlDatosUsuario,
-                tfPasswordMod,
-                hlAccionesModificarUsuario);
+        cmbCategoriasGPT.setItems("Violencia de género", "Igualdad", "Violencia Sexual");
+        txtTituloGPT.setReadOnly(true);
+        txtDescripcionGPT.setReadOnly(true);
+        txtCuerpoArticuloGPT.setReadOnly(true);
 
-        cbUsuario.addValueChangeListener( e -> {
+        btnSaveGPT.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        btnGenerate.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
+
+        formEliminarUsuario.add(prompt, txtTituloGPT,txtDescripcionGPT, txtCuerpoArticuloGPT, btnDeleteUser, cmbCategoriasGPT, btnModificar, btnSaveGPT, btnGenerate);
+        fFormNuevoUsuario.setColspan(prompt, 2);
+        fFormNuevoUsuario.setColspan(txtTituloGPT, 2);
+        fFormNuevoUsuario.setColspan(txtDescripcionGPT, 2);
+        fFormNuevoUsuario.setColspan(txtCuerpoArticuloGPT, 2);
+        fFormNuevoUsuario.setColspan(cmbCategoriasGPT, 2);
+
+        vlModificarUsuario.add(formEliminarUsuario);
+
+        //btnSaveGPT.addClickListener()
+
+        btnGenerate.addClickListener(e -> {
+            if (prompt.getValue().isEmpty()) {
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Rellena el campo de la temática para generar el artículo"));
+                cdlogNuevoUsuario.open();
+            } else {
+
+                try {
+                    generateGPT();
+                } catch (Exception ex) {
+                    cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Error al conectar con OpenAI, intentelo de nuevo más tarde"));
+                    cdlogNuevoUsuario.open();
+                }
+            }
         });
+
+
+
+
         btnModificar.addClickListener(e -> {
 
 
         });
         btnDeleteUser.addClickListener(event -> {
-
+            try {
+                generateGPT();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
 
         tabs.setWidthFull();
@@ -221,5 +239,31 @@ public class createArticleView extends VerticalLayout {
 
     private void clearData() {
         formNuevoUsuario.getChildren().forEach(child -> child.getElement().setProperty("value", ""));
+    }
+
+    private void generateGPT() throws Exception {
+        GPTController chatGPTController = new GPTController();
+        String article = chatGPTController.GPT_3(prompt.getValue());
+
+        String titulo = "";
+        String descripcion = "";
+        String cuerpo = "";
+
+        int tituloIndex = article.indexOf("Título:");
+        int descripcionIndex = article.indexOf("Descripción:");
+        int cuerpoIndex = article.indexOf("Cuerpo del Artículo:");
+
+        if (tituloIndex != -1 && descripcionIndex != -1 && cuerpoIndex != -1) {
+            titulo = article.substring(tituloIndex + 8, descripcionIndex).trim();
+            descripcion = article.substring(descripcionIndex + 13, cuerpoIndex).trim();
+            cuerpo = article.substring(cuerpoIndex + 19).trim();
+        }
+
+        txtTituloGPT.setValue(titulo);
+        txtDescripcionGPT.setValue(descripcion);
+        txtCuerpoArticuloGPT.setValue(cuerpo);
+        txtTituloGPT.setReadOnly(false);
+        txtDescripcionGPT.setReadOnly(false);
+        txtCuerpoArticuloGPT.setReadOnly(false);
     }
 }

@@ -15,7 +15,7 @@ import java.net.http.HttpResponse;
 public class OpenAiClient {
 
     //@Value("${openai.api_key}")
-    private String openaiApiKey = "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";
+    private String openaiApiKey = "";
 
     private final HttpClient client = HttpClient.newHttpClient();
 
@@ -23,6 +23,17 @@ public class OpenAiClient {
 
     public String postToOpenAiApi(String requestBodyAsJson)
             throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder().uri(uri)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + openaiApiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(requestBodyAsJson)).build();
+        System.out.println(request);
+        return client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+    }
+
+    public String postToOpenAiApiImages(String requestBodyAsJson)
+            throws IOException, InterruptedException {
+        URI uri = URI.create("https://api.openai.com/v1/images/generations");
         var request = HttpRequest.newBuilder().uri(uri)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + openaiApiKey)

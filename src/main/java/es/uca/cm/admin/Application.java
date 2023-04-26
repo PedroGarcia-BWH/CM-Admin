@@ -6,6 +6,8 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.theme.Theme;
+import es.uca.cm.admin.openAi.DALL.DALLEController;
+import es.uca.cm.admin.openAi.GPT.GPTController;
 import es.uca.cm.admin.webUser.WebUser;
 import es.uca.cm.admin.webUser.WebUserRepository;
 import es.uca.cm.admin.webUser.WebUserService;
@@ -84,12 +86,8 @@ public class Application implements AppShellConfigurator, CommandLineRunner {
             WebUser empleado = new WebUser("pedro.garciaromera@alum.uca.es", webUserRepository.Cifrar("pruebauca"));
             webUserRepository.save(empleado);
         }
-
-        File file = ResourceUtils.getFile("classpath:logo.png");
-        InputStream inputStream = new FileInputStream(file);
-       /* FirebaseStorageService firebaseStorageService = new FirebaseStorageService();
-        String url = firebaseStorageService.uploadImage(inputStream, "logo.png");
-        System.out.println(url);*/
+        DALLEController dalleController = new DALLEController();
+        dalleController.DALLE("prueba");
     }
 
 }
