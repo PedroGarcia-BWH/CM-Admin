@@ -1,4 +1,6 @@
 package es.uca.cm.admin.views.article;
+import es.uca.cm.admin.Firebase.StorageService;
+import es.uca.cm.admin.openAi.DALL.DALLEController;
 import es.uca.cm.admin.openAi.GPT.GPTController;
 
 import com.vaadin.flow.component.button.Button;
@@ -28,9 +30,15 @@ import jakarta.annotation.security.PermitAll;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @PermitAll
 @PageTitle("Creación de artículo")
@@ -68,6 +76,7 @@ public class createArticleView extends VerticalLayout {
     private TextArea txtCuerpoArticuloGPT = new TextArea("Cuerpo de Artículo");
     private ComboBox<String> cmbCategoriasGPT = new ComboBox<>("Categoría");
 
+    private Image imgImagenPortadaGPT = new Image("https://via.placeholder.com/150.png", "Imagen de marcador de posición");
 
     @Autowired
     private ArticleService articleService;
@@ -150,12 +159,29 @@ public class createArticleView extends VerticalLayout {
         txtTituloGPT.setReadOnly(true);
         txtDescripcionGPT.setReadOnly(true);
         txtCuerpoArticuloGPT.setReadOnly(true);
+        Div marco = new Div();
+
+        // Establecer el ancho y alto del marco
+        marco.getStyle().set("width", "200px");
+        marco.getStyle().set("height", "200px");
+
+        // Establecer el fondo y el borde del marco usando CSS
+        marco.getStyle().set("background-color", "gray");
+        marco.getStyle().set("border", "2px solid black");
+
+
+        // Establecer el ancho y alto de la imagen para que se ajuste al marco
+        imgImagenPortadaGPT.setWidth("100%");
+        imgImagenPortadaGPT.setHeight("100%");
+
+        marco.add(imgImagenPortadaGPT);
 
         btnSaveGPT.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         btnGenerate.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 
-        formEliminarUsuario.add(prompt, txtTituloGPT,txtDescripcionGPT, txtCuerpoArticuloGPT, btnDeleteUser, cmbCategoriasGPT, btnModificar, btnSaveGPT, btnGenerate);
+        formEliminarUsuario.add(prompt, txtTituloGPT,txtDescripcionGPT, txtCuerpoArticuloGPT, btnDeleteUser, cmbCategoriasGPT, marco, btnModificar,
+                btnSaveGPT, btnGenerate);
         fFormNuevoUsuario.setColspan(prompt, 2);
         fFormNuevoUsuario.setColspan(txtTituloGPT, 2);
         fFormNuevoUsuario.setColspan(txtDescripcionGPT, 2);
@@ -164,29 +190,59 @@ public class createArticleView extends VerticalLayout {
 
         vlModificarUsuario.add(formEliminarUsuario);
 
-        //btnSaveGPT.addClickListener()
+        btnSaveGPT.addClickListener(e -> {
+            if(prompt.getValue().isEmpty()) {
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Rellena el campo de la temática para guardar el artículo"));
+                cdlogNuevoUsuario.open();
+            }else if(txtTituloGPT.getValue().isEmpty() || txtDescripcionGPT.getValue().isEmpty() || txtCuerpoArticuloGPT.getValue().isEmpty()){
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Campos de texto no rellenados, por favor genéralos con GPT"));
+                cdlogNuevoUsuario.open();
+            }else if(cmbCategoriasGPT.getValue().isEmpty()){
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Selecciona una categoría para el artículo"));
+                cdlogNuevoUsuario.open();
+            }else if(imgImagenPortadaGPT.getSrc() == "https://via.placeholder.com/150.png" ) {
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Imagen no válida, por favor, genere una imagen"));
+                cdlogNuevoUsuario.open();
+            }else {
+                StorageService firebaseStorageService = new StorageService();
+                try {
+                    InputStream inputStream = new ByteArrayInputStream(imgImagenPortadaGPT.getSrc().getBytes(StandardCharsets.UTF_8));
+                    String fileName = new String();
+                    UUID uuid = UUID.randomUUID();
+                    fileName = uuid.toString() + ".png";
+
+                    String url = firebaseStorageService.uploadImage(inputStream, fileName);
+                    articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, cmbCategorias.getValue()));
+                    cdlogNuevoUsuario.add(new H3("Éxito"), new Hr(), new Paragraph("Artículo creado correctamente"));
+                    clearData();
+                    cdlogNuevoUsuario.open();
+                } catch (IOException ex) {
+                    cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("No se ha podido crear el artículo"));
+                    cdlogNuevoUsuario.open();
+                }
+            }
+        });
 
         btnGenerate.addClickListener(e -> {
             if (prompt.getValue().isEmpty()) {
                 cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Rellena el campo de la temática para generar el artículo"));
                 cdlogNuevoUsuario.open();
             } else {
-
                 try {
                     generateGPT();
+                    generateDALL();
                 } catch (Exception ex) {
                     cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Error al conectar con OpenAI, intentelo de nuevo más tarde"));
                     cdlogNuevoUsuario.open();
                 }
             }
         });
-
-
-
-
         btnModificar.addClickListener(e -> {
-
-
+            try {
+                generateDALL();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         });
         btnDeleteUser.addClickListener(event -> {
             try {
@@ -214,7 +270,7 @@ public class createArticleView extends VerticalLayout {
                 cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Debes rellenar todos los campos"));
                 cdlogNuevoUsuario.open();
             } else {
-                Application.FirebaseStorageService firebaseStorageService = new Application.FirebaseStorageService();
+                StorageService firebaseStorageService = new StorageService();
                 try {
                     String url = firebaseStorageService.uploadImage(buffer.getInputStream(), buffer.getFileData().getFileName());
                     articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, cmbCategorias.getValue()));
@@ -225,15 +281,11 @@ public class createArticleView extends VerticalLayout {
                     cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("No se ha podido crear el artículo"));
                     cdlogNuevoUsuario.open();
                 }
-
             }
         });
 
         btnVaciar.addClickListener(e -> {
             clearData();
-        });
-
-        btnDelete.addClickListener(e -> {
         });
     }
 
@@ -245,13 +297,19 @@ public class createArticleView extends VerticalLayout {
         GPTController chatGPTController = new GPTController();
         String article = chatGPTController.GPT_3(prompt.getValue());
 
+       // System.out.println(article);
+
         String titulo = "";
         String descripcion = "";
         String cuerpo = "";
 
         int tituloIndex = article.indexOf("Título:");
         int descripcionIndex = article.indexOf("Descripción:");
-        int cuerpoIndex = article.indexOf("Cuerpo del Artículo:");
+        int cuerpoIndex = article.indexOf("Cuerpo de artículo:");
+
+        if(cuerpoIndex == -1) cuerpoIndex = article.indexOf("Cuerpo del artículo:");
+
+
 
         if (tituloIndex != -1 && descripcionIndex != -1 && cuerpoIndex != -1) {
             titulo = article.substring(tituloIndex + 8, descripcionIndex).trim();
@@ -265,5 +323,13 @@ public class createArticleView extends VerticalLayout {
         txtTituloGPT.setReadOnly(false);
         txtDescripcionGPT.setReadOnly(false);
         txtCuerpoArticuloGPT.setReadOnly(false);
+    }
+
+    private void generateDALL() throws Exception {
+        DALLEController chatDALLController = new DALLEController();
+        String urlImage = chatDALLController.DALLE(prompt.getValue());
+
+
+        imgImagenPortadaGPT.setSrc(urlImage);
     }
 }

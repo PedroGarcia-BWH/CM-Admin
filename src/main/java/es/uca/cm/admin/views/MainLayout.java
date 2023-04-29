@@ -15,7 +15,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -26,6 +25,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.RouterLink;
 import es.uca.cm.admin.views.home.HomeView;
+import es.uca.cm.admin.views.user.UsersView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
 
@@ -152,7 +152,7 @@ public class MainLayout extends AppLayout{
 
     private Component[] createMenuItems() {
         return new Tab[] { createTab(getTranslation("mainLayout.home"), HomeView.class, new Icon(VaadinIcon.HOME)),
-                createTab(getTranslation("mainLayout.transfer"), HomeView.class, new Icon(VaadinIcon.MONEY_EXCHANGE)),
+                createTab(getTranslation("mainlayout.users"), UsersView.class, new Icon(VaadinIcon.USER)),
                 createTab(getTranslation("mainLayout.cards"), HomeView.class, new Icon(VaadinIcon.CREDIT_CARD)),
                 createTab(getTranslation("mainLayout.movement"), HomeView.class, new Icon(VaadinIcon.MONEY)),
                 createTab(getTranslation("article.title"), articleView.class, new Icon(VaadinIcon.NEWSPAPER)),

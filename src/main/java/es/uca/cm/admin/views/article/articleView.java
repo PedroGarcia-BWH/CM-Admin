@@ -12,6 +12,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -27,140 +28,113 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LitRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import es.uca.cm.admin.views.MainLayout;
+import es.uca.cm.admin.views.article.articleService.Article;
 import es.uca.cm.admin.views.article.articleService.ArticleService;
 import es.uca.cm.admin.webUser.WebUser;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static es.uca.cm.admin.Firebase.StorageService.getImage;
+
 
 @PermitAll
 @PageTitle("Gestíon de artículos")
 @Route(value = "articulos", layout = MainLayout.class)
 public class articleView extends HorizontalLayout {
     private VerticalLayout vlGrid = new VerticalLayout();
-    private VerticalLayout vlInfo = new VerticalLayout();
-    private VerticalLayout vlSeparator = new VerticalLayout();
 
     private H1 hGrid = new H1(getTranslation("article.gestion"));
-
-    private H2 hInfo = new H2(getTranslation("dashboard.search"));
-    private HorizontalLayout hlBuscador = new HorizontalLayout();
-
-    private ComboBox<String> cbUsuario = new ComboBox<>(getTranslation("account.home"));
-    private Paragraph pNumeroCuenta = new Paragraph(getTranslation("account.number"));
-    private Grid<WebUser> gridCuenta = new Grid<>(WebUser.class, false);
-
     private Button btnAdd = new Button(getTranslation("article.add"));
 
-    private Button btnDelete = new Button(getTranslation("account.delete"));
+    private VerticalLayout vlMain = new VerticalLayout();
 
-    private VerticalLayout hlAdd = new VerticalLayout();
-
-
-
-
-    public articleView() {
-        hGrid.setClassName("title");
-        hInfo.setClassName("title");
-
-        vlGrid.setWidth("70%");
-        vlSeparator.setWidth("2px");
-        vlInfo.setWidth("30%");
-
-        vlSeparator.getStyle().set("background-color", "var(--lumo-contrast-10pct)");
-        vlSeparator.getStyle().set("padding", "0");
-
-        btnDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-
-        vlGrid.add(hGrid,
-                new Hr(),
-                gridCuenta,
-                btnAdd);
-
-        vlInfo.setAlignItems(FlexComponent.Alignment.CENTER);
-        hlBuscador.setAlignItems(FlexComponent.Alignment.END);
-        pNumeroCuenta.getStyle().set("fontWeight", "600");
-        /*Grid cliente*/
-
-        gridCuenta.addColumn(WebUser::getEmail).setHeader("Número de tarjeta").setAutoWidth(true).setSortable(true);
-        gridCuenta.addColumn(WebUser::getEmail).setHeader("Fecha de creación").setAutoWidth(true).setSortable(true);
-        gridCuenta.addColumn(WebUser::getEmail).setHeader("Saldo").setSortable(true);
-        gridCuenta.addColumn(WebUser::getEmail).setHeader("DNI Cliente").setAutoWidth(true).setSortable(true);
-        //actualizamos el UI
-        updateUI();
-        //comboBox
-        List<String> aCuentas = new ArrayList<>();
-        /*for (Cuenta cuenta : cuentaService.loadCuentas()) {
-            aCuentas.add(cuenta.getNumeroCuenta());
-        }*/
-        cbUsuario.setItems(aCuentas);
+    @Autowired
+    private ArticleService _articleService;
 
 
-        hlBuscador.add(pNumeroCuenta,
-                cbUsuario);
-        vlInfo.add(hInfo,
-                new Hr(),
-                hlBuscador,
-                btnDelete);
+    private Grid<Article> gridArticle = new Grid<>(es.uca.cm.admin.views.article.articleService.Article.class, false);
 
-        setHeight("100%");
-        add(vlGrid,
-                vlSeparator,
-                vlInfo);
+
+
+    public articleView(ArticleService articleService) {
+        _articleService = articleService;
+        setJustifyContentMode(JustifyContentMode.CENTER);
+        this.setAlignItems(FlexComponent.Alignment.CENTER);
+        setWidthFull();
+        gridArticle.addComponentColumn(article -> {
+                    Image image;
+                    if(article.getUrlFrontPage().contains("storage.googleapis.com")){
+                        try {
+                            image = new Image(getImage(article.getUrlFrontPage()), "alt text");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        image = new Image(article.getUrlFrontPage(), "alt text");
+                    }
+                    image.setWidth("100px");
+                    image.setHeight("100px");
+                    return image;
+                })
+                .setAutoWidth(true)
+                .setSortable(false);
+        gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getTitle).setHeader(getTranslation("article.titles")).setAutoWidth(true).setSortable(true);
+        gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getDescription).setHeader(getTranslation("article.description")).setAutoWidth(false).setSortable(true);
+        gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getCategory).setHeader(getTranslation("article.category")).setAutoWidth(true).setSortable(true);
+        gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getCreationDate).setHeader(getTranslation("article.date")).setAutoWidth(true).setSortable(true);
+
+        TextField searchField = new TextField();
+        searchField.setWidth("30%");
+        searchField.setPlaceholder(getTranslation("article.search"));
+        searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+        searchField.setValueChangeMode(ValueChangeMode.EAGER);
+
+        vlMain.add(hGrid, new Hr(), searchField);
+        vlMain.add(gridArticle, btnAdd);
+
+
+        add(vlMain);
 
         btnAdd.addClickListener(e -> {
             UI.getCurrent().getPage().setLocation("/create/articulo");
         });
 
-        btnDelete.addClickListener(e -> {
-            ConfirmDialog dialog = new ConfirmDialog();
-            dialog.setHeader(getTranslation("confirm.title"));
-            dialog.setText(getTranslation("confirm.body"));
+        List<Article> articles = _articleService.findByEliminationDateIsNull();
 
-            dialog.setCancelable(true);
+        //Image img = new Image(articles.get(0).getUrlFrontPage(), "Front page image");
+        //add(img);
+        GridListDataView<Article> dataView = gridArticle.setItems(articles);
 
-            dialog.setCancelText(getTranslation("confirm.no"));
+        searchField.addValueChangeListener(e -> dataView.refreshAll());
 
-            dialog.setConfirmText(getTranslation("confirm.yes"));
-            dialog.addConfirmListener(event ->  {
-                if(cbUsuario.getValue() == null){
-                    Notification notification = new Notification();
-                    notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        dataView.addFilter(article -> {
+            String searchTerm = searchField.getValue().trim();
+            if (searchTerm.isEmpty()) return true;
 
-                    Div text = new Div(new Text(getTranslation("account.accountError")));
+            boolean matchesTitle = article.getTitle().toLowerCase().contains(searchTerm.toLowerCase());
+            boolean matchesDescription = article.getDescription().toLowerCase().contains(searchTerm.toLowerCase());
 
-                    Button closeButton = new Button(new Icon("lumo", "cross"));
-                    closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-                    closeButton.getElement().setAttribute("aria-label", "Close");
-                    closeButton.addClickListener(ee -> {
-                        notification.close();
-                    });
 
-                    HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-                    layout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-                    notification.add(layout);
-                    notification.open();
-                }
-                else {
-
-                }
-                ;});
-
-            dialog.open();
+            return matchesTitle || matchesDescription;
         });
+
+
     }
 
     private void updateUI(){
     }
-
 
 }

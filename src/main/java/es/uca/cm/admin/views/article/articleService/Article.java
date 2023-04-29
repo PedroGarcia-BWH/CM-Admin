@@ -99,6 +99,7 @@ public class Article {
         Category = category;
     }
 
+
     @Override
     public String toString() {
         return "Article{" +
