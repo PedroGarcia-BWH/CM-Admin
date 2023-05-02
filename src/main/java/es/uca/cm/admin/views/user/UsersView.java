@@ -2,12 +2,14 @@ package es.uca.cm.admin.views.user;
 
 import com.google.firebase.auth.ExportedUserRecord;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -26,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static es.uca.cm.admin.Firebase.AuthService.getAllUsersFirebase;
+import static es.uca.cm.admin.Firebase.AuthService.toggleUserStatus;
 
 
 @PermitAll
@@ -34,7 +37,7 @@ import static es.uca.cm.admin.Firebase.AuthService.getAllUsersFirebase;
 public class UsersView extends HorizontalLayout {
     private VerticalLayout vlGrid = new VerticalLayout();
 
-    private H1 hGrid = new H1(getTranslation("article.gestion"));
+    private H1 hGrid = new H1(getTranslation("user.gestion"));
 
     private VerticalLayout vlMain = new VerticalLayout();
 
@@ -68,12 +71,54 @@ public class UsersView extends HorizontalLayout {
                 .setHeader(getTranslation("user.lastLogin"))
                 .setAutoWidth(true)
                 .setSortable(true);
-        gridArticle.addColumn(ExportedUserRecord::isEmailVerified).setHeader(getTranslation("user.verified")).setAutoWidth(true).setSortable(true);
-        gridArticle.addColumn(ExportedUserRecord::isDisabled).setHeader(getTranslation("user.disabled")).setAutoWidth(true).setSortable(true);
+        gridArticle.addColumn(userRecord -> userRecord.isEmailVerified() ? "X" : "✔")
+                .setHeader(getTranslation("user.verified"))
+                .setAutoWidth(true)
+                .setSortable(false);
+        gridArticle.addColumn(userRecord -> userRecord.isDisabled() ? "X" : "✔")
+                .setHeader(getTranslation("user.disabled"))
+                .setAutoWidth(true)
+                .setSortable(false);
+        gridArticle.addComponentColumn(userRecord -> {
+                    if (userRecord.isDisabled()) {
+                        Button enableButton = new Button("Habilitar");
+                        enableButton.addClickListener(e -> {
+                            try {
+                                toggleUserStatus(userRecord.getUid());
+                                refreshUI();
+                                Notification.show("El usuario ha sido habilitado correctamente",
+                                        3000, Notification.Position.BOTTOM_CENTER);
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (FirebaseAuthException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        });
+                        return enableButton;
+                    } else {
+                        Button disableButton = new Button("Deshabilitar");
+                        disableButton.addClickListener(e -> {
+                            try {
+                                toggleUserStatus(userRecord.getUid());
+                                refreshUI();
+                                Notification.show("El usuario ha sido desactivado correctamente",
+                                        3000, Notification.Position.BOTTOM_CENTER);
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (FirebaseAuthException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        });
+                        return disableButton;
+                    }
+                })
+                .setHeader("Acción")
+                .setAutoWidth(true)
+                .setSortable(false);
 
         TextField searchField = new TextField();
         searchField.setWidth("30%");
-        searchField.setPlaceholder(getTranslation("article.search"));
+        searchField.setPlaceholder(getTranslation("user.search"));
         searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
 
@@ -89,18 +134,23 @@ public class UsersView extends HorizontalLayout {
 
         searchField.addValueChangeListener(e -> dataView.refreshAll());
 
-        /*dataView.addFilter(article -> {
+        dataView.addFilter(user -> {
             String searchTerm = searchField.getValue().trim();
             if (searchTerm.isEmpty()) return true;
 
-            boolean matchesTitle = article.getTitle().toLowerCase().contains(searchTerm.toLowerCase());
-            boolean matchesDescription = article.getDescription().toLowerCase().contains(searchTerm.toLowerCase());
+            boolean matchesEmail = user.getEmail().toLowerCase().contains(searchTerm.toLowerCase());
+            boolean matchesId= user.getUid().toLowerCase().contains(searchTerm.toLowerCase());
+            //boolean matchesName = user.getDisplayName().toLowerCase().contains(searchTerm.toLowerCase());
 
 
-            return matchesTitle || matchesDescription;
-        });*/
+            return matchesEmail || matchesId;
+        });
+    }
 
-
+    private void refreshUI() throws IOException, FirebaseAuthException {
+        List<ExportedUserRecord> userList = (List<ExportedUserRecord>) getAllUsersFirebase();
+        ListDataProvider<ExportedUserRecord> dataProvider = new ListDataProvider<>(userList);
+        GridListDataView<ExportedUserRecord> dataView = gridArticle.setItems(dataProvider);
     }
 
 }

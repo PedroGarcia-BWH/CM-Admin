@@ -1,4 +1,4 @@
-package es.uca.cm.admin.components.appnav.translationProvider;
+package es.uca.cm.admin.components.translationProvider;
 
 import com.vaadin.flow.i18n.I18NProvider;
 import org.springframework.stereotype.Component;

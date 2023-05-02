@@ -1,5 +1,6 @@
 package es.uca.cm.admin.views.article;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -47,6 +48,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static es.uca.cm.admin.Firebase.AuthService.toggleUserStatus;
 import static es.uca.cm.admin.Firebase.StorageService.getImage;
 
 
@@ -95,6 +97,24 @@ public class articleView extends HorizontalLayout {
         gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getDescription).setHeader(getTranslation("article.description")).setAutoWidth(false).setSortable(true);
         gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getCategory).setHeader(getTranslation("article.category")).setAutoWidth(true).setSortable(true);
         gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getCreationDate).setHeader(getTranslation("article.date")).setAutoWidth(true).setSortable(true);
+        gridArticle.addComponentColumn(article -> {
+
+            Button deleteButton = new Button("Eliminar");
+            deleteButton.addClickListener(e -> {
+
+                boolean deleted=  articleService.deleteById(article.getId());
+                if(deleted) Notification.show("El artículo ha sido eliminado correctamente", 3000, Notification.Position.BOTTOM_CENTER);
+                else Notification.show("El artículo no se ha podido eliminar", 3000, Notification.Position.BOTTOM_CENTER);
+                refreshUI();
+
+
+            });
+            return deleteButton;
+
+                })
+                .setHeader("Acción")
+                .setAutoWidth(true)
+                .setSortable(false);
 
         TextField searchField = new TextField();
         searchField.setWidth("30%");
@@ -134,7 +154,12 @@ public class articleView extends HorizontalLayout {
 
     }
 
-    private void updateUI(){
+    private void refreshUI(){
+        List<Article> articles = _articleService.findByEliminationDateIsNull();
+
+        //Image img = new Image(articles.get(0).getUrlFrontPage(), "Front page image");
+        //add(img);
+        GridListDataView<Article> dataView = gridArticle.setItems(articles);
     }
 
 }
