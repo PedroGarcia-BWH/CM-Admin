@@ -47,6 +47,28 @@ public class AuthService {
         return users;
     }
 
+    public String getEmailById(String id) throws IOException {
+        GoogleCredentials googleCredentials = GoogleCredentials.fromStream(
+                new ClassPathResource("conexion-morada-firebase-adminsdk-yfw4e-42a173e4d3.json").getInputStream());
+
+
+        if (FirebaseApp.getApps().isEmpty()) {
+            FirebaseOptions firebaseOptions = FirebaseOptions.builder()
+                    .setCredentials(googleCredentials)
+                    .build();
+            FirebaseApp.initializeApp(firebaseOptions);
+        }
+
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            try {
+                UserRecord userRecord = firebaseAuth.getUser(id);
+                return userRecord.getEmail();
+            } catch (FirebaseAuthException e) {
+                e.printStackTrace();
+            }
+            return null;
+    }
+
     public static boolean toggleUserStatus(String uid) throws IOException, FirebaseAuthException {
         // Obtener las credenciales de Firebase desde el archivo
         GoogleCredentials googleCredentials = GoogleCredentials.fromStream(

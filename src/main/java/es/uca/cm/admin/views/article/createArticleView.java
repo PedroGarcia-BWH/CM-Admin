@@ -33,11 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @PermitAll
@@ -51,7 +47,6 @@ public class createArticleView extends VerticalLayout {
     private H1 hNuevoUsuario = new H1(getTranslation("article.create"));
     HorizontalLayout hlAccionesNuevoUsuario = new HorizontalLayout();
     private H1 hEliminarUsuario = new H1(getTranslation("article.createGPT"));
-    HorizontalLayout hlAccionesModificarUsuario = new HorizontalLayout();
     private FormLayout formNuevoUsuario = new FormLayout();
     private FormLayout formEliminarUsuario = new FormLayout();
     private VerticalLayout vlNuevoUsuario = new VerticalLayout();

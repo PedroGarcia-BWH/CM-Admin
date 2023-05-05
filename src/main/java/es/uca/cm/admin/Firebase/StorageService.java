@@ -74,4 +74,28 @@ public class StorageService {
 
         return urlConToken;
     }
+
+    public static String  getPerfilUser(String uuid) throws IOException {
+        GoogleCredentials googleCredentials = GoogleCredentials.fromStream(
+                new ClassPathResource("conexion-morada-firebase-adminsdk-yfw4e-42a173e4d3.json").getInputStream());
+
+        // Configurar las opciones de almacenamiento de Firebase
+        StorageOptions storageOptions = StorageOptions.newBuilder()
+                .setCredentials(googleCredentials)
+                .build();
+
+        Storage storage = storageOptions.getService();
+        String carpeta = "perfil";
+        String rutaArchivo = carpeta + "/" + uuid;
+
+        BlobId blobId = BlobId.of("conexion-morada.appspot.com", rutaArchivo);
+        Blob blob = storage.get(blobId);
+        if(blob == null) return "";
+        // Crear una URL pública con token de autenticación
+        long duracionToken = 3600; // Duración en segundos
+        String urlConToken = blob.signUrl(duracionToken, TimeUnit.SECONDS)
+                .toString();
+
+        return urlConToken;
+    }
 }

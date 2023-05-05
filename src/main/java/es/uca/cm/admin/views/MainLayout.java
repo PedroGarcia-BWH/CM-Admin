@@ -25,6 +25,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.RouterLink;
 import es.uca.cm.admin.views.home.HomeView;
+import es.uca.cm.admin.views.reporte.ReporteView;
 import es.uca.cm.admin.views.user.UsersView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
@@ -153,6 +154,7 @@ public class MainLayout extends AppLayout{
     private Component[] createMenuItems() {
         return new Tab[] { createTab(getTranslation("mainLayout.home"), HomeView.class, new Icon(VaadinIcon.HOME)),
                 createTab(getTranslation("mainlayout.users"), UsersView.class, new Icon(VaadinIcon.USER)),
+                createTab(getTranslation("reporte.title"), ReporteView.class, new Icon(VaadinIcon.BUG)),
                 createTab(getTranslation("article.title"), articleView.class, new Icon(VaadinIcon.NEWSPAPER))};
     }
 
