@@ -19,8 +19,12 @@ public class ArticleService {
         this.articleRepository = articleRepository;
     }
 
+    public List<Article> findByCityIsNullAndComunidadIsNullAndEliminationDateIsNull() {
+        return articleRepository.findByCityIsNullAndComunidadIsNullAndEliminationDateIsNull();
+    }
+
     public List<Article> findByEliminationDateIsNull() {
-        return articleRepository.findByeliminationDateIsNull();
+        return articleRepository.findByEliminationDateIsNull();
     }
 
     public Article save(Article article) {
@@ -39,6 +43,26 @@ public class ArticleService {
             return true;
         }
         return false;
+    }
+
+    public List<Article> findByCityAndAndEliminationDateIsNull(String city) {
+        return articleRepository.findByCityAndAndEliminationDateIsNull(city);
+    }
+
+    public List<Article> findByComunidadAndAndEliminationDateIsNull(String comunidad) {
+        return articleRepository.findByComunidadAndAndEliminationDateIsNull(comunidad);
+    }
+
+    public List<Article> findByTitleContainingOrDescriptionContainingOrBodyContainingAndComunidadIsNullAndCityIsNull(String query) {
+        return articleRepository.findByTitleContainingAndCityIsNullAndComunidadIsNull(query);
+    }
+
+    public List<Article> findByTitleContainingOrDescriptionContainingOrBodyContainingAndComunidad(String query, String comunidad) {
+        return articleRepository.findByTitleContainingAndComunidad(query, comunidad);
+    }
+
+    public List<Article> findByTitleContainingOrDescriptionContainingOrBodyContainingAndCity(String query, String city) {
+        return articleRepository.findByTitleContainingAndCity(query, city);
     }
 
 }

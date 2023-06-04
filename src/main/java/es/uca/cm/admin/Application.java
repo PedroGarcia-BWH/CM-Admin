@@ -52,7 +52,7 @@ public class Application implements AppShellConfigurator, CommandLineRunner {
     public void run(String... args) throws Exception {
 
         if(webUserRepository.count() == 0) {
-            WebUser empleado = new WebUser("pedro.garciaromera@alum.uca.es", webUserRepository.Cifrar("pruebauca"));
+            WebUser empleado = new WebUser("admin@uca.es", "admin");
             webUserRepository.save(empleado);
         }
         //emailService.sendEmail("pedro.garciaromera@alum.uca.es", "Conexión Morada", "Bienvenido a Conexión Morada");

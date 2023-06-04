@@ -9,6 +9,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -93,24 +94,78 @@ public class articleView extends HorizontalLayout {
                 })
                 .setAutoWidth(true)
                 .setSortable(false);
-        gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getTitle).setHeader(getTranslation("article.titles")).setAutoWidth(true).setSortable(true);
-        gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getDescription).setHeader(getTranslation("article.description")).setAutoWidth(false).setSortable(true);
+        gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getTitle).setHeader(getTranslation("article.titles")).setAutoWidth(true).setResizable(true).setSortable(true);
+        gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getDescription).setHeader(getTranslation("article.description")).setAutoWidth(false).setResizable(true).setSortable(true);
         gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getCategory).setHeader(getTranslation("article.category")).setAutoWidth(true).setSortable(true);
         gridArticle.addColumn(es.uca.cm.admin.views.article.articleService.Article::getCreationDate).setHeader(getTranslation("article.date")).setAutoWidth(true).setSortable(true);
         gridArticle.addComponentColumn(article -> {
+                    HorizontalLayout buttonLayout = new HorizontalLayout();
 
-            Button deleteButton = new Button("Eliminar");
-            deleteButton.addClickListener(e -> {
+                    Button deleteButton = new Button("Eliminar");
+                    deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+                    deleteButton.addClickListener(e -> {
+                        boolean deleted = articleService.deleteById(article.getId());
+                        if (deleted) {
+                            Notification.show("El artículo ha sido eliminado correctamente", 3000, Notification.Position.BOTTOM_CENTER);
+                        } else {
+                            Notification.show("El artículo no se ha podido eliminar", 3000, Notification.Position.BOTTOM_CENTER);
+                        }
+                        refreshUI();
+                    });
+                    buttonLayout.add(deleteButton);
 
-                boolean deleted=  articleService.deleteById(article.getId());
-                if(deleted) Notification.show("El artículo ha sido eliminado correctamente", 3000, Notification.Position.BOTTOM_CENTER);
-                else Notification.show("El artículo no se ha podido eliminar", 3000, Notification.Position.BOTTOM_CENTER);
-                refreshUI();
+                    Button verButton = new Button("Ver");
+                    verButton.addClickListener(e -> {
+                        Dialog dialog = new Dialog();
+                        dialog.setCloseOnEsc(false);
+                        dialog.setCloseOnOutsideClick(false);
 
+                        VerticalLayout layout = new VerticalLayout();
+                        H2 description = new H2("Descripción del artículo");
+                        Label descriptionLabel = new Label(article.getDescription());
+                        H2 body = new H2("Cuerpo del artículo");
+                        Label bodyLabel = new Label( article.getBody());
+                        H2 portada = new H2("Portada del artículo");
 
-            });
-            return deleteButton;
+                        Image image;
+                        if(article.getUrlFrontPage().contains("storage.googleapis.com")){
+                            try {
+                                image = new Image(getImage(article.getUrlFrontPage()), "alt text");
+                            } catch (IOException exc) {
+                                throw new RuntimeException(exc);
+                            }
+                        } else {
+                            image = new Image(article.getUrlFrontPage(), "alt text");
+                        }
+                        image.setWidth("100px");
+                        image.setHeight("100px");
+                        H2 creationDate = new H2("Fecha de creación del artículo");
+                        Label creationDateLabel = new Label(article.getCreationDate().toString());
+                        H2 category = new H2("Categoría del artículo");
+                        Label categoryLabel = new Label(article.getCategory());
 
+                        H2 ambito = new H2("Ámbito del artículo");
+                        Label ambitoLabel;
+                        if(article.getCity() == null && article.getComunidad() == null) {
+                            ambitoLabel = new Label("Nacional");
+                        }else if(article.getCity() != null) {
+                            ambitoLabel = new Label("Cuidad: " + article.getCity());
+                        }else {
+                            ambitoLabel = new Label("Comunidad: " + article.getComunidad());
+                        }
+
+                        Button closeButton = new Button("Cerrar");
+                        closeButton.addClickListener(ex -> dialog.close());
+
+                        layout.add(new H1("Artículo: " + article.getTitle()), description, descriptionLabel, body, bodyLabel, portada, image,
+                                 category, categoryLabel, ambito, ambitoLabel, creationDate, creationDateLabel, closeButton);
+                        dialog.add(layout);
+
+                        dialog.open();
+                    });
+                    buttonLayout.add(verButton);
+
+                    return buttonLayout;
                 })
                 .setHeader("Acción")
                 .setAutoWidth(true)

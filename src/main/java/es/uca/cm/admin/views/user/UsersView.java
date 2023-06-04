@@ -52,7 +52,7 @@ public class UsersView extends HorizontalLayout {
         setWidthFull();
         gridArticle.addColumn(ExportedUserRecord::getUid).setHeader(getTranslation("user.id")).setAutoWidth(true).setSortable(true);
         gridArticle.addColumn(ExportedUserRecord::getEmail).setHeader(getTranslation("user.email")).setAutoWidth(true).setSortable(true);
-        gridArticle.addColumn(ExportedUserRecord::getDisplayName).setHeader(getTranslation("user.name")).setAutoWidth(true).setSortable(true);
+        //gridArticle.addColumn(ExportedUserRecord::getDisplayName).setHeader(getTranslation("user.name")).setAutoWidth(true).setSortable(true);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 // Agregar columnas al grid

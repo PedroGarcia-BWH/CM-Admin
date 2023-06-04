@@ -1,7 +1,11 @@
 package es.uca.cm.admin.views.article.articleService;
 
 
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 
 import java.util.Date;
 import java.util.UUID;
@@ -9,7 +13,7 @@ import java.util.UUID;
 @Entity
 public class Article {
 
-    @Id
+    @jakarta.persistence.Id
     @GeneratedValue
     @Column(length=16)
     private UUID Id;
@@ -35,16 +39,45 @@ public class Article {
     @Column
     private String Category;
 
+    @Column
+    private String city;
+
+    @Column
+    private String comunidad;
+
     public Article(){}
 
-    public Article(String title, String description, String body, String urlFrontPage, String category) {
+    public Article(String title, String description, String body, String urlFrontPage) {
         this.title = title;
         this.description = description;
         this.body = body;
         this.urlFrontPage = urlFrontPage;
         this.creationDate = new Date();
+        city = null;
+        comunidad = null;
+    }
+
+    public Article(String title, String description, String body, String urlFrontPage,String city, String comunidad) {
+        this.title = title;
+        this.description = description;
+        this.body = body;
+        this.urlFrontPage = urlFrontPage;
+        this.creationDate = new Date();
+        this.city = city;
+        this.comunidad = comunidad;
+    }
+
+    public Article(String title, String description, String body, String urlFrontPage,String category, String city, String comunidad) {
+        this.title = title;
+        this.description = description;
+        this.body = body;
+        this.urlFrontPage = urlFrontPage;
+        this.creationDate = new Date();
+        this.city = city;
+        this.comunidad = comunidad;
         this.Category = category;
     }
+
 
     //getters
     public UUID getId() {
@@ -99,6 +132,21 @@ public class Article {
         Category = category;
     }
 
+    public String getCity() {
+        return city;
+    }
+
+    public String getComunidad() {
+        return comunidad;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setComunidad(String comunidad) {
+        this.comunidad = comunidad;
+    }
 
     @Override
     public String toString() {
