@@ -29,7 +29,7 @@ import static es.uca.cm.admin.Firebase.AuthService.getAllUsersFirebase;
  */
 @SpringBootApplication
 @Theme(value = "conexnmoradaadministrador")
-@PWA(name = "Conexión Morada Administrador", shortName = "Conexión Morada Administrador", offlineResources = {"images/logo.png"})
+@PWA(name = "Conexión Morada Administrador", shortName = "Conexión Morada Administrador")
 
 public class Application implements AppShellConfigurator, CommandLineRunner {
 
@@ -55,7 +55,6 @@ public class Application implements AppShellConfigurator, CommandLineRunner {
             WebUser empleado = new WebUser("admin@uca.es", "admin");
             webUserRepository.save(empleado);
         }
-        //emailService.sendEmail("pedro.garciaromera@alum.uca.es", "Conexión Morada", "Bienvenido a Conexión Morada");
 
     }
     //Iterable<ExportedUserRecord> record = getAllUsersFirebase();

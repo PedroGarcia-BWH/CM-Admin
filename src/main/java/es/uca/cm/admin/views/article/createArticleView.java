@@ -1,4 +1,5 @@
 package es.uca.cm.admin.views.article;
+import com.vaadin.flow.component.notification.Notification;
 import es.uca.cm.admin.Firebase.StorageService;
 import es.uca.cm.admin.openAi.DALL.DALLEController;
 import es.uca.cm.admin.openAi.GPT.GPTController;
@@ -278,6 +279,9 @@ public class createArticleView extends VerticalLayout {
             try {
                 generateDALL();
             } catch (Exception ex) {
+                Notification notification = new Notification("Error con la conexión con OpenAi", 3000);
+                notification.setPosition(Notification.Position.BOTTOM_END);
+                notification.open();
                 throw new RuntimeException(ex);
             }
         });
@@ -285,6 +289,9 @@ public class createArticleView extends VerticalLayout {
             try {
                 generateGPT();
             } catch (Exception e) {
+                Notification notification = new Notification("Error con la conexión con OpenaAi", 3000);
+                notification.setPosition(Notification.Position.BOTTOM_END);
+                notification.open();
                 throw new RuntimeException(e);
             }
         });

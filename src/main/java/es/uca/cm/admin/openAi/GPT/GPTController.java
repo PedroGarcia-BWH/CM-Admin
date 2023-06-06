@@ -18,6 +18,7 @@ public class GPTController {
         var postBodyJson = jsonMapper.writeValueAsString(completion);
         System.out.println(postBodyJson);
         var responseBody = client.postToOpenAiApi(postBodyJson);
+        //System.out.println(responseBody);
         ObjectMapper objectMapper = new ObjectMapper();
 
 

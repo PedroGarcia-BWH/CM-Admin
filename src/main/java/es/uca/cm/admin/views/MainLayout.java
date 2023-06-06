@@ -66,16 +66,9 @@ public class MainLayout extends AppLayout{
         btnUser.addClickListener(e -> {
             UI.getCurrent().navigate("account");
         });
-        File file = ResourceUtils.getFile("classpath:logo.png");
-        StreamResource streamResource = new StreamResource("logo.png", () -> {
-            try {
-                return new FileInputStream(file);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            }
-        });
-        Image logo = new Image(streamResource, "Conexión Morada");
+        StreamResource resource = new StreamResource("logo.png", () -> getClass().getResourceAsStream("/logo.png"));
+
+        Image logo = new Image(resource, "Conexión Morada");
         logo.addClassNames("text-l", "m-m");
         logo.setHeight("50px");
         logo.setWidth("50px");
