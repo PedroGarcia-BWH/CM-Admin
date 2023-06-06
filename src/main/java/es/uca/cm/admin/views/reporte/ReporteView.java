@@ -52,8 +52,8 @@ public class ReporteView extends VerticalLayout {
 
     private Tabs tabs = new Tabs();
 
-    private Tab tabAbierto = new Tab("Reportes abiertos");
-    private Tab tabCerrado = new Tab("Reportes cerrados");
+    private Tab tabAbierto = new Tab(getTranslation("reporte.gestion"));
+    private Tab tabCerrado = new Tab(getTranslation("reporte.gestionClose"));
 
     private H1 hArticleOpen = new H1(getTranslation("reporte.gestion"));
     private H1 hArticleClosed = new H1(getTranslation("reporte.gestionClose"));
@@ -91,7 +91,7 @@ public class ReporteView extends VerticalLayout {
         gridAbierto.addComponentColumn(reporte -> {
                     Optional<Hilo> hilo = hiloService.findById(UUID.fromString(reporte.getMensajeUuid()));
                     if(reporte.getMotivo().contains("foto") || reporte.getDescripcion().toLowerCase().contains("foto")){
-                        Button button = new Button("Ver foto");
+                        Button button = new Button(getTranslation("reporte.photo"));
                         button.addClickListener(event -> {
                             try {
                                 elementImageDialog(reporte.getReportado_uuid());
@@ -102,7 +102,7 @@ public class ReporteView extends VerticalLayout {
                         return button;
                     }
                     if(hilo.isPresent()){
-                        Button button = new Button("Ver mensaje");
+                        Button button = new Button(getTranslation("reporte.message"));
                         button.addClickListener(event -> elementMensajeDialog(hilo.get().getMensaje()));
                         return button;
                     }
@@ -112,7 +112,7 @@ public class ReporteView extends VerticalLayout {
                 .setSortable(false);
         gridAbierto.addColumn(Reporte::getDateCreated).setHeader(getTranslation("reporte.dateCreated")).setAutoWidth(true).setSortable(true);
         gridAbierto.addComponentColumn(reporte -> {
-                    Button button = new Button("Iniciar Resolución");
+                    Button button = new Button(getTranslation("reporte.resolution"));
                     button.addClickListener(event -> resolutionDialog(reporte.getId().toString(), reporte.getMotivo(), reporte.getReportado_uuid(), reporte.getReportador_uuid()));
                     return button;
                 })
@@ -133,13 +133,13 @@ public class ReporteView extends VerticalLayout {
 
         TextField searchFieldCerrado = new TextField();
         searchFieldCerrado.setWidth("30%");
-        searchFieldCerrado.setPlaceholder(getTranslation("article.search"));
+        searchFieldCerrado.setPlaceholder(getTranslation("reporte.search"));
         searchFieldCerrado.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchFieldCerrado.setValueChangeMode(ValueChangeMode.EAGER);
 
         TextField searchFieldAbierto = new TextField();
         searchFieldAbierto.setWidth("30%");
-        searchFieldAbierto.setPlaceholder(getTranslation("article.search"));
+        searchFieldAbierto.setPlaceholder(getTranslation("reporte.search"));
         searchFieldAbierto.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchFieldAbierto.setValueChangeMode(ValueChangeMode.EAGER);
 
@@ -207,7 +207,7 @@ public class ReporteView extends VerticalLayout {
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(true);
 
-        H2 title = new H2("Imagen reportada");
+        H2 title = new H2(getTranslation("reporte.imagen"));
         dialog.add(title);
 
         Image image = new Image();
@@ -215,7 +215,7 @@ public class ReporteView extends VerticalLayout {
         image.setWidth("100%");
         image.setHeight("100%");
 
-        Button closeButton = new Button("Cerrar", event -> dialog.close());
+        Button closeButton = new Button(getTranslation("reporte.close"), event -> dialog.close());
         closeButton.setWidth("100%");
         closeButton.setHeight("100%");
 
@@ -242,7 +242,7 @@ public class ReporteView extends VerticalLayout {
         dialog.setCloseOnOutsideClick(true);
 
         // Creamos un elemento H2 con el título "Mensaje Reportado"
-        H2 title = new H2("Mensaje Reportado");
+        H2 title = new H2(getTranslation("reporte.mensaje.reportado"));
         dialog.add(title);
 
         // Creamos un componente de texto con el mensaje y lo agregamos al layout vertical
@@ -252,7 +252,7 @@ public class ReporteView extends VerticalLayout {
         VerticalLayout verticalLayout = new VerticalLayout(textArea);
 
         // Agregamos el botón de cerrar al layout vertical
-        Button closeButton = new Button("Cerrar", event -> dialog.close());
+        Button closeButton = new Button(getTranslation("reporte.close"), event -> dialog.close());
         closeButton.setWidth("100%");
         verticalLayout.add(closeButton);
 
@@ -268,14 +268,14 @@ public class ReporteView extends VerticalLayout {
 
     private void resolutionDialog(String reporte_id, String motivo, String reportado_uuid, String reportador_uuid) {
         // Creamos los checkboxes
-        Checkbox enviarAvisoCheckbox = new Checkbox("Enviar aviso al reportado");
-        Checkbox banearCheckbox = new Checkbox("Banear al reportado");
-        Checkbox cerrarReporteCheckbox = new Checkbox("Cerrar reporte (no es motivo de realizar ninguna acción)");
-        TextArea textArea = new TextArea("Resolución del reporte");
-        textArea.setPlaceholder("Escribe aquí la resolución del reporte");
+        Checkbox enviarAvisoCheckbox = new Checkbox(getTranslation("reporte.warning"));
+        Checkbox banearCheckbox = new Checkbox(getTranslation("reporte.ban"));
+        Checkbox cerrarReporteCheckbox = new Checkbox(getTranslation("reporte.close.report"));
+        TextArea textArea = new TextArea(getTranslation("reporte.resolution.title"));
+        textArea.setPlaceholder(getTranslation("reporte.resloution.here"));
 
         // Creamos el botón para realizar las acciones
-        Button realizarAccionesButton = new Button("Realizar acción", event -> {
+        Button realizarAccionesButton = new Button(getTranslation("reporte.doaction"), event -> {
             // Determinamos qué acción/es realizar
             int actionType = getActionType(enviarAvisoCheckbox.getValue(), banearCheckbox.getValue(), cerrarReporteCheckbox.getValue());
             switch (actionType) {
@@ -319,7 +319,7 @@ public class ReporteView extends VerticalLayout {
 
         // Creamos el layout vertical y añadimos los componentes
         VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(new H2("Resolución"), enviarAvisoCheckbox, banearCheckbox, cerrarReporteCheckbox, textArea, realizarAccionesButton);
+        verticalLayout.add(new H2(getTranslation("reporte.resolution")), enviarAvisoCheckbox, banearCheckbox, cerrarReporteCheckbox, textArea, realizarAccionesButton);
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         verticalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         verticalLayout.setSizeFull();

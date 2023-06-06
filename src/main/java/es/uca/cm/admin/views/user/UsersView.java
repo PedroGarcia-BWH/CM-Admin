@@ -71,7 +71,7 @@ public class UsersView extends HorizontalLayout {
                 .setHeader(getTranslation("user.lastLogin"))
                 .setAutoWidth(true)
                 .setSortable(true);
-        gridArticle.addColumn(userRecord -> userRecord.isEmailVerified() ? "X" : "✔")
+        gridArticle.addColumn(userRecord -> !userRecord.isEmailVerified() ? "X" : "✔")
                 .setHeader(getTranslation("user.verified"))
                 .setAutoWidth(true)
                 .setSortable(false);
@@ -81,12 +81,12 @@ public class UsersView extends HorizontalLayout {
                 .setSortable(false);
         gridArticle.addComponentColumn(userRecord -> {
                     if (userRecord.isDisabled()) {
-                        Button enableButton = new Button("Habilitar");
+                        Button enableButton = new Button(getTranslation("user.enable"));
                         enableButton.addClickListener(e -> {
                             try {
                                 toggleUserStatus(userRecord.getUid());
                                 refreshUI();
-                                Notification.show("El usuario ha sido habilitado correctamente",
+                                Notification.show(getTranslation("user.enable.notification"),
                                         3000, Notification.Position.BOTTOM_CENTER);
                             } catch (IOException ex) {
                                 throw new RuntimeException(ex);
@@ -96,12 +96,12 @@ public class UsersView extends HorizontalLayout {
                         });
                         return enableButton;
                     } else {
-                        Button disableButton = new Button("Deshabilitar");
+                        Button disableButton = new Button(getTranslation("user.disable"));
                         disableButton.addClickListener(e -> {
                             try {
                                 toggleUserStatus(userRecord.getUid());
                                 refreshUI();
-                                Notification.show("El usuario ha sido desactivado correctamente",
+                                Notification.show(getTranslation("user.disable.notification"),
                                         3000, Notification.Position.BOTTOM_CENTER);
                             } catch (IOException ex) {
                                 throw new RuntimeException(ex);
@@ -112,7 +112,7 @@ public class UsersView extends HorizontalLayout {
                         return disableButton;
                     }
                 })
-                .setHeader("Acción")
+                .setHeader(getTranslation("user.action"))
                 .setAutoWidth(true)
                 .setSortable(false);
 

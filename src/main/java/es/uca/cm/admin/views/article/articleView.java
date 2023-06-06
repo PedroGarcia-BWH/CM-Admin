@@ -54,7 +54,7 @@ import static es.uca.cm.admin.Firebase.StorageService.getImage;
 
 
 @PermitAll
-@PageTitle("Gestíon de artículos")
+@PageTitle("Gestión de artículos")
 @Route(value = "articulos", layout = MainLayout.class)
 public class articleView extends HorizontalLayout {
     private VerticalLayout vlGrid = new VerticalLayout();
@@ -101,31 +101,31 @@ public class articleView extends HorizontalLayout {
         gridArticle.addComponentColumn(article -> {
                     HorizontalLayout buttonLayout = new HorizontalLayout();
 
-                    Button deleteButton = new Button("Eliminar");
+                    Button deleteButton = new Button(getTranslation("article.delete"));
                     deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
                     deleteButton.addClickListener(e -> {
                         boolean deleted = articleService.deleteById(article.getId());
                         if (deleted) {
-                            Notification.show("El artículo ha sido eliminado correctamente", 3000, Notification.Position.BOTTOM_CENTER);
+                            Notification.show(getTranslation("article.delete.notification"), 3000, Notification.Position.BOTTOM_CENTER);
                         } else {
-                            Notification.show("El artículo no se ha podido eliminar", 3000, Notification.Position.BOTTOM_CENTER);
+                            Notification.show(getTranslation("article.delete.notification.error"), 3000, Notification.Position.BOTTOM_CENTER);
                         }
                         refreshUI();
                     });
                     buttonLayout.add(deleteButton);
 
-                    Button verButton = new Button("Ver");
+                    Button verButton = new Button(getTranslation("article.view"));
                     verButton.addClickListener(e -> {
                         Dialog dialog = new Dialog();
                         dialog.setCloseOnEsc(false);
                         dialog.setCloseOnOutsideClick(false);
 
                         VerticalLayout layout = new VerticalLayout();
-                        H2 description = new H2("Descripción del artículo");
+                        H2 description = new H2(getTranslation("article.description.view"));
                         Label descriptionLabel = new Label(article.getDescription());
-                        H2 body = new H2("Cuerpo del artículo");
+                        H2 body = new H2(getTranslation("article.body.view"));
                         Label bodyLabel = new Label( article.getBody());
-                        H2 portada = new H2("Portada del artículo");
+                        H2 portada = new H2(getTranslation("article.image.view"));
 
                         Image image;
                         if(article.getUrlFrontPage().contains("storage.googleapis.com")){
@@ -139,25 +139,25 @@ public class articleView extends HorizontalLayout {
                         }
                         image.setWidth("100px");
                         image.setHeight("100px");
-                        H2 creationDate = new H2("Fecha de creación del artículo");
+                        H2 creationDate = new H2(getTranslation("article.date.view"));
                         Label creationDateLabel = new Label(article.getCreationDate().toString());
-                        H2 category = new H2("Categoría del artículo");
+                        H2 category = new H2(getTranslation("article.category.view"));
                         Label categoryLabel = new Label(article.getCategory());
 
-                        H2 ambito = new H2("Ámbito del artículo");
+                        H2 ambito = new H2(getTranslation("article.ambito.view"));
                         Label ambitoLabel;
                         if(article.getCity() == null && article.getComunidad() == null) {
-                            ambitoLabel = new Label("Nacional");
+                            ambitoLabel = new Label(getTranslation("article.nacional"));
                         }else if(article.getCity() != null) {
-                            ambitoLabel = new Label("Cuidad: " + article.getCity());
+                            ambitoLabel = new Label(getTranslation("article.ciudad") + article.getCity());
                         }else {
-                            ambitoLabel = new Label("Comunidad: " + article.getComunidad());
+                            ambitoLabel = new Label(getTranslation("article.comunidad") + article.getComunidad());
                         }
 
-                        Button closeButton = new Button("Cerrar");
+                        Button closeButton = new Button(getTranslation("reporte.close"));
                         closeButton.addClickListener(ex -> dialog.close());
 
-                        layout.add(new H1("Artículo: " + article.getTitle()), description, descriptionLabel, body, bodyLabel, portada, image,
+                        layout.add(new H1(getTranslation("article.title.view") + article.getTitle()), description, descriptionLabel, body, bodyLabel, portada, image,
                                  category, categoryLabel, ambito, ambitoLabel, creationDate, creationDateLabel, closeButton);
                         dialog.add(layout);
 
@@ -167,7 +167,7 @@ public class articleView extends HorizontalLayout {
 
                     return buttonLayout;
                 })
-                .setHeader("Acción")
+                .setHeader(getTranslation("reporte.accion"))
                 .setAutoWidth(true)
                 .setSortable(false);
 

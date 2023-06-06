@@ -30,9 +30,9 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 import es.uca.cm.admin.views.article.articleService.Article;
 import es.uca.cm.admin.views.article.articleService.ArticleService;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -65,11 +65,11 @@ public class createArticleView extends VerticalLayout {
     private FormLayout fFormNuevoUsuario = new FormLayout();
     private Paragraph plog = new Paragraph();
 
-    private TextField prompt = new TextField("Introduce temática para generar artículo");
-    private TextField txtTituloGPT = new TextField("Título");
-    private TextArea txtDescripcionGPT = new TextArea("Descripción");
-    private TextArea txtCuerpoArticuloGPT = new TextArea("Cuerpo de Artículo");
-    private ComboBox<String> cmbCategoriasGPT = new ComboBox<>("Categoría");
+    private TextField prompt = new TextField(getTranslation("article.gpt.prompt"));
+    private TextField txtTituloGPT = new TextField(getTranslation("article.titles"));
+    private TextArea txtDescripcionGPT = new TextArea(getTranslation("article.description"));
+    private TextArea txtCuerpoArticuloGPT = new TextArea(getTranslation("article.body.view"));
+    private ComboBox<String> cmbCategoriasGPT = new ComboBox<>(getTranslation("article.category"));
 
     private Image imgImagenPortadaGPT = new Image("https://via.placeholder.com/150.png", "Imagen de marcador de posición");
 
@@ -107,21 +107,21 @@ public class createArticleView extends VerticalLayout {
         btnSave.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         hlAccionesNuevoUsuario.add(btnVaciar, btnSave);
-        TextField txtTitulo = new TextField("Título");
-        TextArea txtDescripcion = new TextArea("Descripción");
-        TextArea txtCuerpoArticulo = new TextArea("Cuerpo de Artículo");
-        ComboBox<String> cmbCategorias = new ComboBox<>("Categoría");
-        cmbCategorias.setItems("Violencia de género", "Igualdad", "Violencia Sexual");
+        TextField txtTitulo = new TextField(getTranslation("article.titles"));
+        TextArea txtDescripcion = new TextArea(getTranslation("article.description"));
+        TextArea txtCuerpoArticulo = new TextArea(getTranslation("article.body.view"));
+        ComboBox<String> cmbCategorias = new ComboBox<>(getTranslation("article.category"));
+        cmbCategorias.setItems(getTranslation("article.violencia.genero"), getTranslation("article.igualdad"), getTranslation("article.violencia.sexual"));
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
         Image imgImagenPortada = new Image();
 
-        ComboBox<String> selector = new ComboBox<>("Selecciona el ámbito:");
-        selector.setItems("Todo el país", "Comunidad", "Ciudad");
-        TextField txtNombre = new TextField("Ingrese el nombre:");
+        ComboBox<String> selector = new ComboBox<>(getTranslation("article.ambito.view"));
+        selector.setItems(getTranslation("article.create.nacional"), getTranslation("article.create.comunidad"), getTranslation("article.create.ciudad"));
+        TextField txtNombre = new TextField(getTranslation("article.name.ambito"));
         selector.addValueChangeListener(event -> {
             String selectedOption = event.getValue();
-            if ("Comunidad".equals(selectedOption) || "Ciudad".equals(selectedOption)) {
+            if (getTranslation("article.create.comunidad").equals(selectedOption) || getTranslation("article.create.ciudad").equals(selectedOption)) {
                 formNuevoUsuario.add(txtNombre);
             } else {
                 formNuevoUsuario.remove(txtNombre);
@@ -130,7 +130,7 @@ public class createArticleView extends VerticalLayout {
 
         // Configurar opciones de subida de archivo
         upload.setMaxFileSize(20 * 1024 * 1024); // Tamaño máximo de archivo: 5 MB
-        upload.setAcceptedFileTypes("image/jpeg", "image/png"); // Tipos de archivo aceptados: JPEG y PNG
+        upload.setAcceptedFileTypes("image/*"); // Tipos de archivo aceptados: JPEG y PNG
 
         // Configurar acción de subida de archivo
         upload.addSucceededListener(event -> {
@@ -162,7 +162,7 @@ public class createArticleView extends VerticalLayout {
         btnDeleteUser.addThemeVariants(ButtonVariant.LUMO_ERROR);
         btnModificar.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-        cmbCategoriasGPT.setItems("Violencia de género", "Igualdad", "Violencia Sexual");
+        cmbCategoriasGPT.setItems(getTranslation("article.violencia.genero"), getTranslation("article.igualdad"), getTranslation("article.violencia.sexual"));
         txtTituloGPT.setReadOnly(true);
         txtDescripcionGPT.setReadOnly(true);
         txtCuerpoArticuloGPT.setReadOnly(true);
@@ -186,12 +186,12 @@ public class createArticleView extends VerticalLayout {
         btnSaveGPT.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         btnGenerate.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        TextField txtNombreGPT = new TextField("Ingrese el nombre:");
-        ComboBox<String> selectorGPT = new ComboBox<>("Selecciona el ámbito:");
-        selectorGPT.setItems("Todo el país", "Comunidad", "Ciudad");
+        TextField txtNombreGPT = new TextField(getTranslation("article.name.ambito"));
+        ComboBox<String> selectorGPT = new ComboBox<>(getTranslation("article.ambito.view"));
+        selectorGPT.setItems(getTranslation("article.create.nacional"), getTranslation("article.create.comunidad"), getTranslation("article.create.ciudad"));
         selectorGPT.addValueChangeListener(event -> {
             String selectedOption = event.getValue();
-            if ("Comunidad".equals(selectedOption) || "Ciudad".equals(selectedOption)) {
+            if (getTranslation("article.create.comunidad").equals(selectedOption) || getTranslation("article.create.ciudad").equals(selectedOption)) {
                 formEliminarUsuario.addComponentAtIndex(3, txtNombreGPT);
             } else {
                 formEliminarUsuario.remove(txtNombreGPT);
@@ -210,44 +210,45 @@ public class createArticleView extends VerticalLayout {
 
         btnSaveGPT.addClickListener(e -> {
             if(prompt.getValue().isEmpty()) {
-                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Rellena el campo de la temática para guardar el artículo"));
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph(getTranslation("article.error.tematica")));
                 cdlogNuevoUsuario.open();
             }else if(txtTituloGPT.getValue().isEmpty() || txtDescripcionGPT.getValue().isEmpty() || txtCuerpoArticuloGPT.getValue().isEmpty()){
-                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Campos de texto no rellenados, por favor genéralos con GPT"));
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph(getTranslation("article.error.rellenado")));
                 cdlogNuevoUsuario.open();
             }else if(cmbCategoriasGPT.getValue().isEmpty()){
-                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Selecciona una categoría para el artículo"));
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph(getTranslation("article.error.category")));
                 cdlogNuevoUsuario.open();
             }else if(imgImagenPortadaGPT.getSrc() == "https://via.placeholder.com/150.png" ) {
-                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Imagen no válida, por favor, genere una imagen"));
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph(getTranslation("article.error.imagen")));
                 cdlogNuevoUsuario.open();
-            }else if(selectorGPT.getValue().isEmpty() || (selectorGPT.getValue().equals("Comunidad") && txtNombreGPT.getValue().isEmpty()) ||
-                    (selectorGPT.getValue().equals("Ciudad") && txtNombreGPT.getValue().isEmpty())) {
-                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Seleccione el ámbito del artículo"));
+            }else if(selectorGPT.getValue() == null || (selectorGPT.getValue().equals(getTranslation("article.create.comunidad")) && txtNombreGPT.getValue().isEmpty()) ||
+                    (selectorGPT.getValue().equals(getTranslation("article.create.ciudad")) && txtNombreGPT.getValue().isEmpty())) {
+                cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph(getTranslation("article.error.ambito")));
                 cdlogNuevoUsuario.open();
             }else {
                 StorageService firebaseStorageService = new StorageService();
                 try {
-                    InputStream inputStream = new ByteArrayInputStream(imgImagenPortadaGPT.getSrc().getBytes(StandardCharsets.UTF_8));
+                    URL imageUrl = new URL(imgImagenPortadaGPT.getSrc());
+                    InputStream inputStream = imageUrl.openStream();
                     String fileName = new String();
                     UUID uuid = UUID.randomUUID();
                     fileName = uuid.toString() + ".png";
 
                     String url = firebaseStorageService.uploadImage(inputStream, fileName);
 
-                    if(selector.getValue().equals("Comunidad")){
+                    if(selectorGPT.getValue().equals(getTranslation("article.create.comunidad"))){
 
-                        if ( cmbCategorias.equals("Violencia de género"))  articleService.save(new Article(txtTituloGPT.getValue(), txtDescripcionGPT.getValue(), txtCuerpoArticuloGPT.getValue(), url, "Violencia de genero", null , txtNombreGPT.getValue()));
+                        if ( cmbCategoriasGPT.equals(getTranslation("article.violencia.genero")))  articleService.save(new Article(txtTituloGPT.getValue(), txtDescripcionGPT.getValue(), txtCuerpoArticuloGPT.getValue(), url, "Violencia de genero", null , txtNombreGPT.getValue()));
                         else articleService.save(new Article(txtTituloGPT.getValue(), txtDescripcionGPT.getValue(), txtCuerpoArticuloGPT.getValue(), url, cmbCategoriasGPT.getValue(), null, txtNombreGPT.getValue()));
 
-                    }else if (selector.getValue().equals("Ciudad")){
+                    }else if (selectorGPT.getValue().equals(getTranslation("article.create.ciudad"))){
 
-                        if ( cmbCategorias.equals("Violencia de género"))  articleService.save(new Article(txtTituloGPT.getValue(), txtDescripcionGPT.getValue(), txtCuerpoArticuloGPT.getValue(), url, "Violencia de genero", txtNombreGPT.getValue(), null));
+                        if ( cmbCategoriasGPT.equals(getTranslation("article.violencia.genero")))  articleService.save(new Article(txtTituloGPT.getValue(), txtDescripcionGPT.getValue(), txtCuerpoArticuloGPT.getValue(), url, "Violencia de genero", txtNombreGPT.getValue(), null));
                         else articleService.save(new Article(txtTituloGPT.getValue(), txtDescripcionGPT.getValue(), txtCuerpoArticuloGPT.getValue(), url, cmbCategoriasGPT.getValue(), txtNombreGPT.getValue(), null));
 
                     }else{
 
-                        if ( cmbCategorias.equals("Violencia de género"))  articleService.save(new Article(txtTituloGPT.getValue(), txtDescripcionGPT.getValue(), txtCuerpoArticuloGPT.getValue(), url, "Violencia de genero",null , null));
+                        if ( cmbCategoriasGPT.equals(getTranslation("article.violencia.genero")))  articleService.save(new Article(txtTituloGPT.getValue(), txtDescripcionGPT.getValue(), txtCuerpoArticuloGPT.getValue(), url, "Violencia de genero",null , null));
                         else articleService.save(new Article(txtTituloGPT.getValue(), txtDescripcionGPT.getValue(), txtCuerpoArticuloGPT.getValue(), url, cmbCategoriasGPT.getValue(), null, null));
                     }
 
@@ -255,6 +256,7 @@ public class createArticleView extends VerticalLayout {
                     clearData();
                     cdlogNuevoUsuario.open();
                 } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
                     cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("No se ha podido crear el artículo"));
                     cdlogNuevoUsuario.open();
                 }
@@ -311,7 +313,7 @@ public class createArticleView extends VerticalLayout {
 
         btnSave.addClickListener(e -> {
             if (txtTitulo.getValue().isEmpty() || txtDescripcion.getValue().isEmpty() || txtCuerpoArticulo.getValue().isEmpty() || cmbCategorias.getValue().isEmpty() ||
-            selector.getValue().isEmpty() || (selector.getValue().equals("Comunidad") && txtNombre.getValue().isEmpty()) || (selector.getValue().equals("Ciudad") && txtNombre.getValue().isEmpty()) ) {
+            selector.getValue() == null || (selector.getValue().equals(getTranslation("article.create.comunidad")) && txtNombre.getValue().isEmpty()) || (selector.getValue().equals(getTranslation("article.create.ciudad")) && txtNombre.getValue().isEmpty()) ) {
                 cdlogNuevoUsuario.add(new H3("Error"), new Hr(), new Paragraph("Debes rellenar todos los campos"));
                 cdlogNuevoUsuario.open();
             } else {
@@ -320,19 +322,19 @@ public class createArticleView extends VerticalLayout {
                     String url = firebaseStorageService.uploadImage(buffer.getInputStream(), buffer.getFileData().getFileName());
 
 
-                    if(selector.getValue().equals("Comunidad")){
+                    if(selector.getValue().equals(getTranslation("article.create.comunidad"))){
 
-                        if ( cmbCategorias.equals("Violencia de género"))  articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, "Violencia de genero", null , txtNombre.getValue()));
+                        if ( cmbCategorias.equals(getTranslation("article.violencia.genero")))  articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, "Violencia de genero", null , txtNombre.getValue()));
                         else articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, cmbCategorias.getValue(), null, txtNombre.getValue()));
 
-                    }else if (selector.getValue().equals("Ciudad")){
+                    }else if (selector.getValue().equals(getTranslation("article.create.ciudad"))){
 
-                        if ( cmbCategorias.equals("Violencia de género"))  articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, "Violencia de genero", txtNombre.getValue(), null));
+                        if ( cmbCategorias.equals(getTranslation("article.violencia.genero")))  articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, "Violencia de genero", txtNombre.getValue(), null));
                         else articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, cmbCategorias.getValue(), txtNombre.getValue(), null));
 
                     }else{
 
-                        if ( cmbCategorias.equals("Violencia de género"))  articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, "Violencia de genero",null , null));
+                        if ( cmbCategorias.equals(getTranslation("article.violencia.genero")))  articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, "Violencia de genero",null , null));
                         else articleService.save(new Article(txtTitulo.getValue(), txtDescripcion.getValue(), txtCuerpoArticulo.getValue(), url, cmbCategorias.getValue(), null, null));
                     }
 
@@ -377,6 +379,9 @@ public class createArticleView extends VerticalLayout {
             titulo = article.substring(tituloIndex + 8, descripcionIndex).trim();
             descripcion = article.substring(descripcionIndex + 13, cuerpoIndex).trim();
             cuerpo = article.substring(cuerpoIndex + 19).trim();
+        }
+        if(tituloIndex == -1 && descripcionIndex != -1 && cuerpoIndex != -1){
+            cuerpo = article;
         }
 
         txtTituloGPT.setValue(titulo);

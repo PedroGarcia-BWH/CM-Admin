@@ -46,7 +46,7 @@ public class HomeView extends VerticalLayout {
         if(hour >= 14 && hour < 22) hDay.setText(getTranslation("dashboard.afternoon") + user.get().get().getEmail());
 
         if(hour >= 22 || hour < 8) hDay.setText(getTranslation("dashboard.evening") + user.get().get().getEmail() + "?");
-        H3 normas =  new H3("Normas de la Comunidad");
+        H3 normas =  new H3(getTranslation("comunity"));
         Text text = new Text ("Bienvenido/a a nuestra red social. Para garantizar un entorno seguro y respetuoso para todos los usuarios, te pedimos que sigas estas normas de la comunidad:");
         Text text1 = new Text("Respeto mutuo: Trata a todos los usuarios con cortesía y respeto. No toleramos ningún tipo de lenguaje ofensivo, discriminatorio o irrespetuoso hacia otros miembros de la comunidad.");
         Text text2 = new Text("Privacidad y seguridad: Respeta la privacidad de los demás. No publiques información personal de otros usuarios sin su consentimiento. Además, no compartas información personal sensible, como contraseñas o datos bancarios, en ningún contexto.");
