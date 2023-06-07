@@ -26,6 +26,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import es.uca.cm.admin.Firebase.AuthService;
 import es.uca.cm.admin.hilo.Hilo;
 import es.uca.cm.admin.hilo.HiloService;
@@ -76,6 +77,8 @@ public class ReporteView extends VerticalLayout {
     private ReporteEmail reporteEmail;
     @Autowired
     private AuthService authService ;
+
+    private TextField searchFieldAbierto = new TextField();
 
     public ReporteView(ReporteService reporteService, HiloService hiloService, AuthService authService, ReporteEmail reporteEmail) {
         this.reporteService = reporteService;
@@ -137,36 +140,24 @@ public class ReporteView extends VerticalLayout {
         searchFieldCerrado.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchFieldCerrado.setValueChangeMode(ValueChangeMode.EAGER);
 
-        TextField searchFieldAbierto = new TextField();
+
         searchFieldAbierto.setWidth("30%");
         searchFieldAbierto.setPlaceholder(getTranslation("reporte.search"));
         searchFieldAbierto.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchFieldAbierto.setValueChangeMode(ValueChangeMode.EAGER);
 
-        List<Reporte> reportesActivos = reporteService.findByEliminationDateIsNull();
+        refreshUI();
+
         List<Reporte> reportesCerrados = reporteService.findByEliminationDateIsNotNull();
 
-        GridListDataView<Reporte> dataViewActivos = gridAbierto.setItems(reportesActivos);
+
         GridListDataView<Reporte> dataViewCerrados = gridCerrado.setItems(reportesCerrados);
 
         searchFieldCerrado.addValueChangeListener(e -> {
                 dataViewCerrados.refreshAll();
         });
 
-        searchFieldAbierto.addValueChangeListener(e -> {
-                dataViewActivos.refreshAll();
-        });
 
-        dataViewActivos.addFilter(reporte -> {
-            String searchTerm = searchFieldAbierto.getValue().trim();
-            if (searchTerm.isEmpty()) return true;
-
-            /*boolean matchesTitle = article.getTitle().toLowerCase().contains(searchTerm.toLowerCase());
-            boolean matchesDescription = article.getDescription().toLowerCase().contains(searchTerm.toLowerCase());*/
-
-
-            return true;
-        });
 
         dataViewCerrados.addFilter(reporte -> {
             String searchTerm = searchFieldCerrado.getValue().trim();
@@ -208,10 +199,15 @@ public class ReporteView extends VerticalLayout {
         dialog.setCloseOnOutsideClick(true);
 
         H2 title = new H2(getTranslation("reporte.imagen"));
-        dialog.add(title);
 
         Image image = new Image();
         image.setSrc(getPerfilUser(uuid));
+        if(image.getSrc().equals("")){
+            StreamResource resource = new StreamResource("account_profile_user_icon_190494.png", () -> getClass().getResourceAsStream("/account_profile_user_icon_190494.png"));
+            image.setHeight("50px");
+            image.setWidth("50px");
+            image.setSrc(resource);
+        }
         image.setWidth("100%");
         image.setHeight("100%");
 
@@ -220,10 +216,9 @@ public class ReporteView extends VerticalLayout {
         closeButton.setHeight("100%");
 
         VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(image, closeButton);
+        verticalLayout.add(title, image, closeButton);
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         verticalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        verticalLayout.setSizeFull();
 
         dialog.add(verticalLayout);
         dialog.open();
@@ -274,6 +269,8 @@ public class ReporteView extends VerticalLayout {
         TextArea textArea = new TextArea(getTranslation("reporte.resolution.title"));
         textArea.setPlaceholder(getTranslation("reporte.resloution.here"));
 
+        Dialog dialog = new Dialog();
+
         // Creamos el botón para realizar las acciones
         Button realizarAccionesButton = new Button(getTranslation("reporte.doaction"), event -> {
             // Determinamos qué acción/es realizar
@@ -303,10 +300,11 @@ public class ReporteView extends VerticalLayout {
                     }
                     break;
             }
+            refreshUI();
+            dialog.close();
         });
 
         // Creamos el diálogo y lo abrimos
-        Dialog dialog = new Dialog();
         dialog.setCloseOnEsc(false);
         dialog.setCloseOnOutsideClick(false);
         dialog.setWidth("900px");
@@ -357,6 +355,27 @@ public class ReporteView extends VerticalLayout {
     private void cerrarReporte(String reporte_id, String motivo, String resolucion, String email_reportador) {
         reporteService.closeReporte(reporte_id);
         reporteEmail.sendAvisoReportador(email_reportador, motivo, resolucion);
+    }
+
+    private void refreshUI(){
+        List<Reporte> reportesActivos = reporteService.findByEliminationDateIsNull();
+
+        GridListDataView<Reporte> dataViewActivos = gridAbierto.setItems(reportesActivos);
+
+        searchFieldAbierto.addValueChangeListener(e -> {
+            dataViewActivos.refreshAll();
+        });
+
+        dataViewActivos.addFilter(reporte -> {
+            String searchTerm = searchFieldAbierto.getValue().trim();
+            if (searchTerm.isEmpty()) return true;
+
+            /*boolean matchesTitle = article.getTitle().toLowerCase().contains(searchTerm.toLowerCase());
+            boolean matchesDescription = article.getDescription().toLowerCase().contains(searchTerm.toLowerCase());*/
+
+
+            return true;
+        });
     }
 
 }
