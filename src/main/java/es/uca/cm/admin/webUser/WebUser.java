@@ -43,6 +43,9 @@ public class WebUser {
         this.dateCreated = new Date();
     }
 
+    public void setId(UUID id) {
+        Id = id;
+    }
     public Integer getVersion(){ return this.version; }
     public void setVersion(Integer version){ this.version = version; }
     public Date getDateCreated(){ return this.dateCreated; }

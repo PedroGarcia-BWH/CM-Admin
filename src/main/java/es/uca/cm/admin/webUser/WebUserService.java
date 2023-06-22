@@ -11,8 +11,9 @@ public class WebUserService {
     private PasswordEncoder passwordEncoder;
     private final WebUserRepository userRepository;
 
-    public WebUserService(WebUserRepository userRepository) {
+    public WebUserService(WebUserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String Cifrar (String s){

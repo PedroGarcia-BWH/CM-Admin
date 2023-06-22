@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -47,16 +48,11 @@ public class HomeView extends VerticalLayout {
 
         if(hour >= 22 || hour < 8) hDay.setText(getTranslation("dashboard.evening") + user.get().get().getEmail() + "?");
         H3 normas =  new H3(getTranslation("comunity"));
-        Text text = new Text ("Bienvenido/a a nuestra red social. Para garantizar un entorno seguro y respetuoso para todos los usuarios, te pedimos que sigas estas normas de la comunidad:");
-        Text text1 = new Text("Respeto mutuo: Trata a todos los usuarios con cortesía y respeto. No toleramos ningún tipo de lenguaje ofensivo, discriminatorio o irrespetuoso hacia otros miembros de la comunidad.");
-        Text text2 = new Text("Privacidad y seguridad: Respeta la privacidad de los demás. No publiques información personal de otros usuarios sin su consentimiento. Además, no compartas información personal sensible, como contraseñas o datos bancarios, en ningún contexto.");
-        Text text3 = new Text("No al acoso: No toleramos el acoso, el bullying o el comportamiento intimidante hacia otros usuarios. No realices comentarios ofensivos, difamatorios o que puedan dañar la reputación de alguien.");
-        Text text4 = new Text("No al spam: No publiques contenido promocional o comercial, ni realices publicaciones repetitivas o irrelevantes. No utilices la plataforma para enviar mensajes no solicitados o no deseados a otros usuarios.");
-        Text text5 = new Text("Respeto a la diversidad: Valora la diversidad de opiniones, culturas y creencias. No promuevas ni compartas contenido que incite al odio, la discriminación o la violencia contra individuos o grupos por motivos de raza, religión, género, orientación sexual u otros.");
-        Text text6 = new Text( "Reporta y denuncia: Si encuentras contenido inapropiado o comportamiento que viole estas normas, repórtalo a los administradores de la plataforma. Ayúdanos a mantener la comunidad segura y agradable para todos.");
-        Text text7 = new Text( "Recuerda que el incumplimiento de estas normas puede resultar en la eliminación de contenido, la suspensión temporal o permanente de la cuenta, o cualquier otra acción que consideremos necesaria para preservar la integridad de la comunidad.");
-        Text text8 = new Text("Gracias por ser parte de nuestra red social y contribuir a un entorno positivo y respetuoso.");
-        vlDashboard.add(dashBoard, hDay, normas, text, text1, text2, text3, text4, text5, text6, text7, text8);
+        String textoNormas = getTranslation("normas");
+
+        Label labelNormas = new Label(textoNormas);
+        labelNormas.getStyle().set("white-space", "pre-wrap");
+        vlDashboard.add(dashBoard, hDay, normas, labelNormas);
 
         add(vlDashboard);
 

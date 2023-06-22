@@ -36,6 +36,10 @@ public class Username {
         this.firebaseToken = firebaseToken;
     }
 
+    public Username(String username) {
+        this.username = username;
+    }
+
     public UUID getId() {
         return Id;
     }

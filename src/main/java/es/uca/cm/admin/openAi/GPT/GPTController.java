@@ -9,9 +9,9 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class GPTController {
 
-    private ObjectMapper jsonMapper = new ObjectMapper();
+    public ObjectMapper jsonMapper = new ObjectMapper();
 
-    private OpenAiClient client = new OpenAiClient();
+    public OpenAiClient client = new OpenAiClient();
 
     public String GPT_3(String message) throws Exception {
         var completion = new CompletionRequest("Creame un articulo con titulo, descripcion y cuerpo de articulo de la siguiente temática: " +message);
@@ -91,7 +91,7 @@ public class GPTController {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     // Clase POJO para mapear el JSON
-    static class MyPojo {
+    public static class MyPojo {
         private String id;
         private String object;
         private long created;
