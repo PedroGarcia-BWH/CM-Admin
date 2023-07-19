@@ -15,7 +15,7 @@ import java.net.http.HttpResponse;
 public class OpenAiClient {
 
     //@Value("${openai.api_key}")
-    private String openaiApiKey = "";
+    private String openaiApiKey = "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";
 
     private final HttpClient client = HttpClient.newHttpClient();
 

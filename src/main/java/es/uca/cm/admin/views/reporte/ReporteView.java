@@ -130,7 +130,28 @@ public class ReporteView extends VerticalLayout {
         gridCerrado.addColumn(Reporte::getDescripcion).setHeader(getTranslation("reporte.descripcion")).setAutoWidth(true).setSortable(true);
         gridCerrado.addColumn(Reporte::getReportado_uuid).setHeader(getTranslation("reporte.reportado")).setAutoWidth(true).setSortable(true);
         gridCerrado.addColumn(Reporte::getReportador_uuid).setHeader(getTranslation("reporte.reportador")).setAutoWidth(true).setSortable(true);
-        gridCerrado.addColumn(Reporte::getMensajeUuid).setHeader(getTranslation("reporte.mensaje"));
+        gridCerrado.addComponentColumn(reporte -> {
+                    Optional<Hilo> hilo = hiloService.findById(UUID.fromString(reporte.getMensajeUuid()));
+                    if(reporte.getMotivo().contains("foto") || reporte.getDescripcion().toLowerCase().contains("foto")){
+                        Button button = new Button(getTranslation("reporte.photo"));
+                        button.addClickListener(event -> {
+                            try {
+                                elementImageDialog(reporte.getReportado_uuid());
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                        return button;
+                    }
+                    if(hilo.isPresent()){
+                        Button button = new Button(getTranslation("reporte.message"));
+                        button.addClickListener(event -> elementMensajeDialog(hilo.get().getMensaje()));
+                        return button;
+                    }
+                    return null;
+                })
+                .setAutoWidth(true).setHeader(getTranslation("reporte.mensaje"))
+                .setSortable(false);
         gridCerrado.addColumn(Reporte::getDateCreated).setHeader(getTranslation("reporte.dateCreated")).setAutoWidth(true).setSortable(true);
         gridCerrado.addColumn(Reporte::getDateEliminated).setHeader(getTranslation("reporte.dateClosed")).setAutoWidth(true).setSortable(true);
 
